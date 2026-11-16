@@ -18,7 +18,7 @@ the job's own acceptance criteria.
 | 2 | `glm-4.7-flash` | Ollama (local) | 19 GB | `glm-4.7-flash/` |
 | 3 | `qwen3-coder-next` | Ollama (local) | 51 GB | `qwen3-coder-next/` |
 | 4 | `qwen3.8` | Ollama (local) | 18 GB | `qwen3.8/` |
-| 5 | _TBD_ | | | |
+| 5 | `claude-opus-5-5` (Claude Opus 5.5) | Anthropic API (cloud) | n/a | `claude-opus-5-5/` |
 
 Each model's attempt lives in its own folder and branch, named after the model.
 
@@ -76,8 +76,8 @@ React/Next.js + Supabase (or similar), hosted on Vercel.
 
 Each attempt is scored against the job's acceptance criteria:
 
-| # | Acceptance criterion | flint | glm-4.7-flash | qwen3-coder-next | qwen3.8 | #5 |
-|---|----------------------|:-----:|:-------------:|:----------------:|:-------:|:--:|
+| # | Acceptance criterion | flint | glm-4.7-flash | qwen3-coder-next | qwen3.8 | Claude Opus 5.5 |
+|---|----------------------|:-----:|:-------------:|:----------------:|:-------:|:---------------:|
 | 1 | A customer can price, book, pay and track a parcel end-to-end on mobile and desktop | | | | | |
 | 2 | The agent can scan a sticker, update the weight and photo, and trigger a balance payment | | | | | |
 | 3 | The admin can print stickers and customs PDFs and add tracking numbers; customer statuses update and SMS/email are sent | | | | | |
