@@ -27,6 +27,7 @@ export interface Address {
 
 export interface Order {
   id: string
+  order_number: string
   customer_id: string | null
   agent_id: string | null
   tracking_number: string | null
