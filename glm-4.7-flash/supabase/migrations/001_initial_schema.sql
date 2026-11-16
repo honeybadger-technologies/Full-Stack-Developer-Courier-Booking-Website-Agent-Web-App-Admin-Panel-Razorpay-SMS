@@ -1,6 +1,42 @@
 -- Create custom types for easier type definition in JavaScript/TypeScript
 
--- Orders table
+-- Customers table
+CREATE TABLE IF NOT EXISTS customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT NOT NULL,
+  address JSONB NOT NULL,
+  profile_photo TEXT,
+
+  -- Verification
+  is_verified BOOLEAN DEFAULT false,
+  verification_method TEXT,
+
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Agents table
+CREATE TABLE IF NOT EXISTS agents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  phone TEXT UNIQUE NOT NULL,
+  email TEXT,
+  location JSONB,
+
+  -- Status
+  status TEXT DEFAULT 'active',
+  active_bookings INTEGER DEFAULT 0,
+  total_bookings INTEGER DEFAULT 0,
+
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Orders table (after customers/agents, which it references)
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
@@ -34,42 +70,6 @@ CREATE TABLE IF NOT EXISTS orders (
   payment_link TEXT,
 
   -- Metadata
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Customers table
-CREATE TABLE IF NOT EXISTS customers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  phone TEXT NOT NULL,
-  address JSONB NOT NULL,
-  profile_photo TEXT,
-
-  -- Verification
-  is_verified BOOLEAN DEFAULT false,
-  verification_method TEXT,
-
-  -- Timestamps
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Agents table
-CREATE TABLE IF NOT EXISTS agents (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  phone TEXT UNIQUE NOT NULL,
-  email TEXT,
-  location JSONB,
-
-  -- Status
-  status TEXT DEFAULT 'active',
-  active_bookings INTEGER DEFAULT 0,
-  total_bookings INTEGER DEFAULT 0,
-
-  -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -163,12 +163,11 @@ ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rate_tables ENABLE ROW LEVEL SECURITY;
 
 -- Orders RLS policies
-CREATE POLICY "Public can view published orders"
-  ON orders FOR SELECT
-  USING (status != 'cancelled');
-
+-- Public tracking goes through an API route using the service-role client,
+-- never through anon reads of this table.
 CREATE POLICY "Customers can view their own orders"
   ON orders FOR SELECT
   USING (
@@ -177,10 +176,6 @@ CREATE POLICY "Customers can view their own orders"
   );
 
 -- Customers RLS policies
-CREATE POLICY "Public can view customers"
-  ON customers FOR SELECT
-  USING (true);
-
 CREATE POLICY "Customers can view their own profile"
   ON customers FOR SELECT
   USING (auth.uid() = id);
@@ -189,3 +184,8 @@ CREATE POLICY "Customers can view their own profile"
 CREATE POLICY "Insert own customer"
   ON customers FOR INSERT
   WITH CHECK (auth.uid() = id);
+
+-- Rate tables: public read for the price calculator; writes via service role only
+CREATE POLICY "Public can view rates"
+  ON rate_tables FOR SELECT
+  USING (true);
