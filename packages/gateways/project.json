@@ -1,0 +1,26 @@
+{
+  "name": "gateways",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/gateways/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/gateways",
+        "main": "packages/gateways/src/index.ts",
+        "tsConfig": "packages/gateways/tsconfig.lib.json",
+        "assets": [
+          "packages/gateways/*.md"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "type:gateways",
+    "scope:shared"
+  ]
+}

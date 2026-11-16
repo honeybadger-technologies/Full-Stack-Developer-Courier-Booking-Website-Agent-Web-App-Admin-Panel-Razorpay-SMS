@@ -1,0 +1,26 @@
+{
+  "name": "sms",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/sms/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/sms",
+        "main": "packages/sms/src/index.ts",
+        "tsConfig": "packages/sms/tsconfig.lib.json",
+        "assets": [
+          "packages/sms/*.md"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "type:service",
+    "scope:shared"
+  ]
+}

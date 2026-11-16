@@ -1,0 +1,75 @@
+{
+  "name": "customer",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/customer/src",
+  "projectType": "application",
+  "tags": [
+    "type:app",
+    "scope:frontend"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/customer",
+        "staticPageGeneration": true
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/customer"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "customer:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "customer:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "customer:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "customer:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/customer/jest.config.cts"
+      }
+    },
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/customer-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "baseUrl": "http://localhost:3000"
+      },
+      "configurations": {
+        "production": {
+          "baseUrl": "http://localhost:3000"
+        }
+      }
+    }
+  }
+}

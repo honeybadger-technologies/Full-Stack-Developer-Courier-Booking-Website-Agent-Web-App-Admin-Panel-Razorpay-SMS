@@ -1,0 +1,51 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": false,
+    "paths": {
+      "@courier/ui": [
+        "./packages/ui/src/index.ts"
+      ],
+      "@courier/models": [
+        "./packages/models/src/index.ts"
+      ],
+      "@courier/supabase-client": [
+        "./packages/supabase-client/src/index.ts"
+      ],
+      "@courier/payments": [
+        "./packages/payments/src/index.ts"
+      ],
+      "@courier/sms": [
+        "./packages/sms/src/index.ts"
+      ],
+      "@courier/email": [
+        "./packages/email/src/index.ts"
+      ],
+      "@courier/print": [
+        "./packages/print/src/index.ts"
+      ],
+      "@courier/gateways": [
+        "./packages/gateways/src/index.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "print",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/print/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/packages/print",
+        "main": "packages/print/src/index.ts",
+        "tsConfig": "packages/print/tsconfig.lib.json",
+        "assets": [
+          "packages/print/*.md"
+        ]
+      }
+    }
+  },
+  "tags": [
+    "type:service",
+    "scope:shared"
+  ]
+}
