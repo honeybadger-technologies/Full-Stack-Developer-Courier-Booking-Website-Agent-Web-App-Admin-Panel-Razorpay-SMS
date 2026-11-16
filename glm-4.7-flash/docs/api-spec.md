@@ -209,7 +209,7 @@ Authorization: Bearer <your_jwt_token>
     "destination": "USA",
     "weight": 2.5,
     "price": 450,
-    "status": "pending_pickup"
+    "status": "booked"
   }
 }
 ```
