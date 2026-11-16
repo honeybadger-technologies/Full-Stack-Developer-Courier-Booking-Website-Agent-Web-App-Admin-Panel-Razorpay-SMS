@@ -1,0 +1,14 @@
+{
+  "name": "@honeybadger-courier/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "date-fns": "^3.3.0"
+  }
+}

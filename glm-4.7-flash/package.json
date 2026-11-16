@@ -1,0 +1,31 @@
+{
+  "name": "honeybadger-courier-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "International courier booking platform - branded customer experience with India Post backend",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:client": "turbo run test --filter=./apps/*",
+    "test:api": "turbo run test --filter=./packages/db",
+    "db:push": "npx supabase db push",
+    "db:generate-types": "npx supabase gen types typescript > packages/db/types.ts",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "npm@9.0.0"
+}
