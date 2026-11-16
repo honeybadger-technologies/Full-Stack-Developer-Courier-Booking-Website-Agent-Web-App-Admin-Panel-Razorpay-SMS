@@ -167,7 +167,8 @@ Key tables (defined in Supabase migrations):
 
 - `apps/customer-web/app/layout.tsx` - Root layout with navigation
 - `apps/customer-web/app/page.tsx` - Home/price calculator
-- `packages/db/client.ts` - Supabase client configuration
+- `packages/db/client.ts` - Supabase anon client (browser-safe, RLS applies)
+- `packages/db/server.ts` - `getSupabaseService()` service-role client (server-only, bypasses RLS)
 - `supabase/migrations/*.sql` - Complete database schema
 - `apps/admin-panel/app/orders/page.tsx` - Admin order management
 
