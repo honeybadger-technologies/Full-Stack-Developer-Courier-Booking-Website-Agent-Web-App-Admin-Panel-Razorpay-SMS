@@ -36,6 +36,9 @@ pnpm-debug.log*
 # Vercel
 .vercel
 
+# Turborepo
+.turbo
+
 # Typescript
 *.tsbuildinfo
 next-env.d.ts
