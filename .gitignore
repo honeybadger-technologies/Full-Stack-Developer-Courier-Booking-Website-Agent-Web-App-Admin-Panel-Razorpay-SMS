@@ -58,3 +58,6 @@ pnpm-lock.yaml
 # Debug
 *.temp
 *.tmp
+# Local scratch and Claude Code runtime
+tmp/
+.claude/scheduled_tasks.lock

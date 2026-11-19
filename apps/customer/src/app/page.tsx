@@ -1,8 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { calculateShippingPrice, formatINR } from '@courier/ui/primitives';
 import { useRouter } from 'next/navigation';
+
+// Format a number as Indian Rupee
+function formatINR(amount: number): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+// Calculate shipping price based on weight and rate
+function calculateShippingPrice(weightKg: number, baseRate: number, perKgRate: number): number {
+  const billableWeight = Math.max(weightKg, 0.5);
+  return baseRate + (billableWeight - 1) * perKgRate;
+}
 
 interface RateTable {
   region: string;

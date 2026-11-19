@@ -179,8 +179,8 @@ let smsClient: SMSClient | null = null;
 
 export function getSMSClient(): SMSClient {
   if (!smsClient) {
-    const authKey = process.env.MSG91_AUTH_KEY;
-    const senderId = process.env.MSG91_SENDER_ID;
+    const authKey = process.env['MSG91_AUTH_KEY'];
+    const senderId = process.env['MSG91_SENDER_ID'];
 
     if (!authKey || !senderId) {
       throw new Error('MSG91_AUTH_KEY and MSG91_SENDER_ID must be set');

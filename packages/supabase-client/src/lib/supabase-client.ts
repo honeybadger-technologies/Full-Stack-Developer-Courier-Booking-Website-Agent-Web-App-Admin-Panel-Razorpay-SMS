@@ -336,8 +336,8 @@ let supabase: SupabaseClient<Database> | null = null;
 
 export function getSupabaseClient(): SupabaseClient<Database> {
   if (!supabase) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_KEY;
+    const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+    const key = process.env['SUPABASE_SERVICE_KEY'];
 
     if (!url || !key) {
       throw new Error('Supabase URL and Key must be set');
@@ -350,8 +350,8 @@ export function getSupabaseClient(): SupabaseClient<Database> {
 
 // Client for public use (anon key)
 export function getPublicSupabaseClient(): SupabaseClient<Database> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env['NEXT_PUBLIC_SUPABASE_URL'];
+  const key = process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
 
   if (!url || !key) {
     throw new Error('Supabase URL and Anon Key must be set');

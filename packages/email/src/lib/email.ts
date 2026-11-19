@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import axios from 'axios';
 
 // Email types
 export type EmailTemplate =
@@ -15,13 +15,6 @@ export interface EmailParams {
   html?: string;
   text?: string;
   from?: string;
-  cc?: string | string[];
-  bcc?: string | string[];
-  attachments?: Array<{
-    filename: string;
-    content: string | Buffer;
-    path?: string;
-  }>;
 }
 
 export interface EmailResponse {
@@ -32,44 +25,44 @@ export interface EmailResponse {
   html: string;
   text: string;
   status: 'sent' | 'failed' | 'scheduled';
-  headers: Record<string, string>;
   created_at: string;
 }
 
-// Resend client
-let resend: Resend | null = null;
-
-export function getResendClient(): Resend {
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY must be set');
-    }
-
-    resend = new Resend(apiKey);
-  }
-  return resend;
-}
-
-/**
- * Send an email
- */
+// Email client using Resend API
 export async function sendEmail(params: EmailParams): Promise<EmailResponse> {
-  const client = getResendClient();
+  const apiKey = process.env['RESEND_API_KEY'];
 
-  const result = await client.emails.send({
-    to: Array.isArray(params.to) ? params.to.join(',') : params.to,
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY must be set');
+  }
+
+  const response = await axios.post(
+    'https://api.resend.com/emails',
+    {
+      to: Array.isArray(params.to) ? params.to : [params.to],
+      from: params.from || 'noreply@courier.booking',
+      subject: params.subject,
+      html: params.html,
+      text: params.text,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  return {
+    id: response.data.id || '',
+    to: Array.isArray(params.to) ? params.to : [params.to],
     from: params.from || 'noreply@courier.booking',
     subject: params.subject,
-    html: params.html,
-    text: params.text,
-    cc: Array.isArray(params.cc) ? params.cc.join(',') : params.cc,
-    bcc: Array.isArray(params.bcc) ? params.bcc.join(',') : params.bcc,
-    attachments: params.attachments,
-  });
-
-  return result as EmailResponse;
+    html: params.html || '',
+    text: params.text || '',
+    status: 'sent',
+    created_at: new Date().toISOString(),
+  };
 }
 
 /**
@@ -257,22 +250,5 @@ export async function sendWeightAdjustment(
     to,
     subject: `Weight Adjustment - Payment Required for Booking ${bookingReference}`,
     html,
-  });
-}
-
-/**
- * Send a custom email
- */
-export async function sendCustomEmail(
-  to: string,
-  subject: string,
-  html: string,
-  from?: string
-): Promise<EmailResponse> {
-  return sendEmail({
-    to,
-    subject,
-    html,
-    from,
   });
 }
