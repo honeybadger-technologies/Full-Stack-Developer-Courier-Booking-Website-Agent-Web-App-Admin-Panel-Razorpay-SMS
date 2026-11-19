@@ -59,6 +59,26 @@ Ollama log has exactly 20 matching HTTP 500s at 59.9–70 s. They failed in two 
 | 10 | **reading the prompt** | GLM reads prompts at 120–290 tokens/s, so a 31k–56k prompt needs 2–6 minutes. The main session and the check share one prompt cache in Ollama, so each evicted the other and the history was reread every time |
 | 10 | **writing its answer** | With the prompt mostly cached, GLM started answering, but it is a reasoning model: it wrote **275–766 tokens** of reasoning at about **13 tokens/s** and never reached the 5-token verdict |
 
+### Replay with no time limit
+
+To see what GLM would have answered, the dumped check was replayed on 2026-11-19 straight to
+Ollama (`POST /v1/messages`, same system prompt and transcript, `max_tokens` 8192), with a
+30-minute client limit instead of 60 seconds.
+
+- **0–20 min:** GLM read the 59,014-token prompt.
+- **20–30 min:** it wrote 2,571 tokens (about 10,000 characters) of reasoning and was cut off by
+  the 30-minute limit. It never wrote `<block>no</block>` or `<block>yes</block>`.
+- **It lost track of which action it was judging.** The action was the Write of `page.tsx`. GLM
+  noted that, then went back and forth ("maybe the input is the user message", "*Wait*...")
+  and drifted to judging the `git push` the user had asked for earlier, weighing it against the
+  `Bash(git push *)` deny rule. It was still working through the soft-block list when it was
+  cut off.
+
+Speeds in the replay (about 47 tokens/s reading, 4.7 tokens/s writing) are lower than on
+2026-11-16, because another large request was using Ollama at the same time. The conclusion
+does not depend on them: even with unlimited time, GLM did not produce a verdict, so auto mode
+cannot work with GLM as its own safety checker.
+
 Every Write that succeeded came after the session was switched to *accept edits* (20:02 UTC).
 The last two failures happened when the mode briefly went back to auto.
 
