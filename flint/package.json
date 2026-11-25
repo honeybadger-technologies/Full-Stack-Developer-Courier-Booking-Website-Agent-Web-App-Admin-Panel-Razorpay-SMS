@@ -1,0 +1,32 @@
+{
+  "name": "courier-booking-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Courier booking platform monorepo with Customer Website, Agent Web App, and Admin Panel",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:customer": "turbo run dev --filter=@cbp/customer",
+    "dev:agent": "turbo run dev --filter=@cbp/agent",
+    "dev:admin": "turbo run dev --filter=@cbp/admin",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.0.0"
+}
