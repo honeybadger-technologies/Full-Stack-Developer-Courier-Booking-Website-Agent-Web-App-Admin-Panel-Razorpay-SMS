@@ -458,7 +458,7 @@ const server = createServer(async (req, res) => {
     if (pathname === '/v1/webhooks/payment-captured' && method === 'POST') {
       const body = await readBody(req)
       const orderId = typeof body.order_id === 'string' ? body.order_id : ''
-      const amount = Number(body.amount) || 0
+      const amount = Math.round(Number(body.amount) || 0)
       const payload = { event: 'payment.captured', payload: { payment: { entity: { order_id: orderId, amount } } } }
       const rawBody = JSON.stringify(payload)
       const signedPayload = { event: payload.event, payload: payload.payload }

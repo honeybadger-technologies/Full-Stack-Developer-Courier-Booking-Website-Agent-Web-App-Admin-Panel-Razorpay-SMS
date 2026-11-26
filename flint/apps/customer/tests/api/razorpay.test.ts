@@ -89,15 +89,18 @@ describe('POST /api/razorpay/create-order', () => {
   it('creates a Razorpay order for the order total and records a pending payment', async () => {
     const ordersSelect = mockDbQuery({ data: { id: 'ord_1', customer_id: CUSTOMER_ID, status: 'pending', total_amount: 360 }, error: null })
     const ordersUpdate = mockDbQuery({ data: { id: 'ord_1', razorpay_order_id: 'rzp_order_demo_1' }, error: null })
+    const paymentsSelect = mockDbQuery({ data: null, error: null })
     const paymentsInsert = mockDbQuery({ data: { id: 'pay_demo_1', order_id: 'ord_1', razorpay_order_id: 'rzp_order_demo_1', amount: 360, status: 'pending' }, error: null })
     let ordersCalls = 0
+    let paymentsCalls = 0
     dbFromMock.mockImplementation((t: string) => {
       if (t === 'orders') {
         ordersCalls += 1
         return ordersCalls === 1 ? ordersSelect : ordersUpdate
       }
       if (t === 'payments') {
-        return paymentsInsert
+        paymentsCalls += 1
+        return paymentsCalls === 1 ? paymentsSelect : paymentsInsert
       }
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
@@ -118,11 +121,9 @@ describe('POST /api/razorpay/create-order', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       razorpayOrderId: 'rzp_order_demo_1',
-      razorpayPaymentId: 'pay_demo_1',
-      amount: 360,
+      amount: 36000,
       currency: 'INR',
-      paymentLink: 'https://rzp.io/rzp_order_demo_1',
-      signature: expect.any(String),
+      key_id: 'rzp_test_demo',
     })
 
     expect(fetchMock).toHaveBeenCalledWith('http://localhost:4999/v1/orders', expect.objectContaining({ method: 'POST' }))
@@ -144,6 +145,40 @@ describe('POST /api/razorpay/create-order', () => {
       amount: 360,
       status: 'pending',
     })
+  })
+
+  it('returns the existing Razorpay order when the order already has a pending payment', async () => {
+    dbFromMock.mockImplementation((t: string) => {
+      if (t === 'orders') {
+        return mockDbQuery({ data: { id: 'ord_1', customer_id: CUSTOMER_ID, status: 'pending', total_amount: 360 }, error: null })
+      }
+      if (t === 'payments') {
+        return mockDbQuery({ data: { id: 'pay_demo_1', order_id: 'ord_1', razorpay_order_id: 'rzp_order_demo_1', amount: 360, status: 'pending' }, error: null })
+      }
+      return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
+    })
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ id: 'rzp_order_demo_1', entity: 'order', status: 'created' }), { status: 200 })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const res = await createRazorpayOrder(
+      makeRequest('/api/razorpay/create-order', {
+        method: 'POST',
+        headers: { ...AUTH, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: 'ord_1', amount: 500 }),
+      })
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      razorpayOrderId: 'rzp_order_demo_1',
+      amount: 36000,
+      currency: 'INR',
+      key_id: 'rzp_test_demo',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('returns 403 when the order belongs to another customer', async () => {
@@ -183,7 +218,7 @@ describe('POST /api/razorpay/create-order', () => {
         return mockDbQuery({ data: { id: AGENT_ID, role: 'agent' }, error: null })
       }
       if (t === 'payments') {
-        return mockDbQuery({ data: { id: 'pay_demo_1', order_id: 'ord_1', razorpay_order_id: 'rzp_order_demo_1', amount: 360, status: 'pending' }, error: null })
+        return mockDbQuery({ data: null, error: null })
       }
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
@@ -204,7 +239,8 @@ describe('POST /api/razorpay/create-order', () => {
     expect(res.status).toBe(200)
     const json = await res.json()
     expect(json.razorpayOrderId).toBe('rzp_order_demo_1')
-    expect(json.amount).toBe(360)
+    expect(json.amount).toBe(36000)
+    expect(json.key_id).toBe('rzp_test_demo')
   })
 })
 
@@ -318,7 +354,7 @@ describe('POST /api/razorpay/verify', () => {
     })
 
     const fetchMock = vi.fn(async () =>
-      new Response(JSON.stringify({ id: 'pay_demo_1', entity: 'payment', status: 'captured', amount: 500 }), { status: 200 })
+      new Response(JSON.stringify({ id: 'pay_demo_1', entity: 'payment', status: 'captured', order_id: 'rzp_order_demo_1', amount: 50000 }), { status: 200 })
     )
     vi.stubGlobal('fetch', fetchMock)
 
@@ -355,7 +391,7 @@ describe('POST /api/razorpay/verify', () => {
     })
 
     const fetchMock = vi.fn(async () =>
-      new Response(JSON.stringify({ id: 'pay_demo_1', entity: 'payment', status: 'captured', amount: 360 }), { status: 200 })
+      new Response(JSON.stringify({ id: 'pay_demo_1', entity: 'payment', status: 'captured', order_id: 'rzp_order_demo_1', amount: 36000 }), { status: 200 })
     )
     vi.stubGlobal('fetch', fetchMock)
 

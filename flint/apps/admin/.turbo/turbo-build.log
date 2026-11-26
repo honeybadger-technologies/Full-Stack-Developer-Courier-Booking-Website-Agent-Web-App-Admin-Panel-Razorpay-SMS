@@ -5,3 +5,71 @@
   ▲ Next.js 14.2.15
 
    Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./app/orders/[id]/page.tsx
+21:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/orders/page.tsx
+14:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/print/cn22/[id]/page.tsx
+19:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/print/gst/[id]/page.tsx
+19:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/print/sticker/[id]/page.tsx
+19:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/8) ...
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+Supabase client not initialized: missing URL or key
+NEXT_PUBLIC_SUPABASE_URL: missing
+NEXT_PUBLIC_SUPABASE_ANON_KEY: missing
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+Supabase client not initialized: missing URL or key
+NEXT_PUBLIC_SUPABASE_URL: missing
+NEXT_PUBLIC_SUPABASE_ANON_KEY: missing
+   Generating static pages (2/8) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+Supabase client not initialized: missing URL or key
+NEXT_PUBLIC_SUPABASE_URL: missing
+NEXT_PUBLIC_SUPABASE_ANON_KEY: missing
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+Supabase client not initialized: missing URL or key
+NEXT_PUBLIC_SUPABASE_URL: missing
+NEXT_PUBLIC_SUPABASE_ANON_KEY: missing
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+Supabase client not initialized: missing URL or key
+NEXT_PUBLIC_SUPABASE_URL: missing
+NEXT_PUBLIC_SUPABASE_ANON_KEY: missing
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    2.15 kB         163 kB
+├ ○ /_not-found                          875 B          88.1 kB
+├ ○ /agents                              1.5 kB          155 kB
+├ ○ /customers                           1.53 kB         155 kB
+├ ○ /orders                              2.23 kB         163 kB
+├ ƒ /orders/[id]                         2.69 kB         156 kB
+├ ƒ /print/cn22/[id]                     2.2 kB          156 kB
+├ ƒ /print/gst/[id]                      2.43 kB         156 kB
+├ ƒ /print/sticker/[id]                  2.06 kB         156 kB
+└ ○ /rates                               2.16 kB         156 kB
++ First Load JS shared by all            87.2 kB
+  ├ chunks/796-9c46111031f4bd5c.js       31.6 kB
+  ├ chunks/b4553ad9-ea87728bcb5537cf.js  53.7 kB
+  └ other shared chunks (total)          1.94 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

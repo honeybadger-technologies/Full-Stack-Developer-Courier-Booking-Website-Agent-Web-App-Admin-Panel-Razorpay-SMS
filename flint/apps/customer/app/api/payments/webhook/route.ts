@@ -2,8 +2,6 @@ import { createHmac, timingSafeEqual } from 'crypto'
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '../../../../lib/api-auth'
 
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || 'rzp_webhook_demo_secret'
-
 function signaturesMatch(provided: string, expected: string) {
   const providedBuffer = Buffer.from(provided)
   const expectedBuffer = Buffer.from(expected)
@@ -14,9 +12,14 @@ function signaturesMatch(provided: string, expected: string) {
 }
 
 export async function POST(request: Request) {
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || ''
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Razorpay webhook secret is not configured' }, { status: 503 })
+  }
+
   const signature = request.headers.get('x-razorpay-signature') || ''
   const rawBody = await request.text()
-  const expectedSignature = createHmac('sha256', RAZORPAY_WEBHOOK_SECRET).update(rawBody).digest('hex')
+  const expectedSignature = createHmac('sha256', webhookSecret).update(rawBody).digest('hex')
   if (!signature || !signaturesMatch(signature, expectedSignature)) {
     return NextResponse.json({ error: 'invalid signature' }, { status: 400 })
   }
@@ -42,8 +45,8 @@ export async function POST(request: Request) {
 
   const { data: order } = await db.from('orders').select('*').eq('id', payment.order_id).single()
   const capturedAmount = Number(amount) || 0
-  const orderTotal = Number(order?.total_amount) || 0
-  if (Math.round(capturedAmount * 100) !== Math.round(orderTotal * 100)) {
+  const orderTotalPaise = Math.round((Number(order?.total_amount) || 0) * 100)
+  if (capturedAmount !== orderTotalPaise) {
     return NextResponse.json({ received: true })
   }
 

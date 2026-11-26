@@ -30,6 +30,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
 
+  const { data: existingPayment } = await db
+    .from('payments')
+    .select('*')
+    .eq('order_id', orderId)
+    .eq('status', 'pending')
+    .single()
+  const existingRazorpayOrderId = (existingPayment?.razorpay_order_id ?? '') as string
+  if (existingRazorpayOrderId) {
+    return NextResponse.json({
+      razorpayOrderId: existingRazorpayOrderId,
+      amount: Math.round((Number(order?.total_amount) || 0) * 100),
+      currency: 'INR',
+      key_id: RAZORPAY_KEY_ID,
+    })
+  }
+
   const amount = Number(order.total_amount) || 0
 
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
@@ -60,9 +76,6 @@ export async function POST(request: Request) {
   }
 
   const razorpayOrderId = data.id as string
-  const razorpayPaymentId = (data.payment?.id ?? razorpayOrderId) as string
-  const paymentSignature = (data.payment?.signature ?? '') as string
-  const paymentLink = `https://rzp.io/${razorpayOrderId}`
 
   const { error: updateError } = await db
     .from('orders')
@@ -90,10 +103,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     razorpayOrderId,
-    razorpayPaymentId,
-    amount,
+    amount: Math.round(amount * 100),
     currency: 'INR',
-    paymentLink,
-    signature: paymentSignature,
+    key_id: RAZORPAY_KEY_ID,
   })
 }

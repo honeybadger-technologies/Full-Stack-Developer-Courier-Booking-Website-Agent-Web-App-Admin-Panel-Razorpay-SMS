@@ -6,13 +6,60 @@
   - Environments: .env.local
 
    Creating an optimized production build ...
-Failed to compile.
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+   Generating static pages (0/18) ...
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+   Generating static pages (4/18) 
+   Generating static pages (8/18) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+   Generating static pages (13/18) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+ ✓ Generating static pages (18/18)
+   Finalizing page optimization ...
+   Collecting build traces ...
 
-./app/layout.tsx
-Module not found: Can't resolve './styles/globals.css'
+Route (app)                              Size     First Load JS
+┌ ○ /                                    908 B           179 kB
+├ ○ /_not-found                          875 B          88.1 kB
+├ ƒ /api/notifications/email             0 B                0 B
+├ ƒ /api/notifications/order             0 B                0 B
+├ ƒ /api/notifications/sms               0 B                0 B
+├ ƒ /api/orders                          0 B                0 B
+├ ƒ /api/orders/[id]                     0 B                0 B
+├ ƒ /api/payments/manual                 0 B                0 B
+├ ƒ /api/payments/webhook                0 B                0 B
+├ ƒ /api/prices                          0 B                0 B
+├ ƒ /api/rates/price                     0 B                0 B
+├ ƒ /api/razorpay/create-order           0 B                0 B
+├ ƒ /api/razorpay/verify                 0 B                0 B
+├ ○ /auth/login                          1.97 kB         156 kB
+├ ○ /auth/register                       2.06 kB         156 kB
+├ ○ /customer/home                       635 B           179 kB
+└ ○ /tracking                            2.36 kB         156 kB
++ First Load JS shared by all            87.2 kB
+  ├ chunks/796-5276b3a396251a6b.js       31.6 kB
+  ├ chunks/b4553ad9-ea87728bcb5537cf.js  53.7 kB
+  └ other shared chunks (total)          1.95 kB
 
-https://nextjs.org/docs/messages/module-not-found
 
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 
-> Build failed because of webpack errors
- ELIFECYCLE  Command failed with exit code 1.

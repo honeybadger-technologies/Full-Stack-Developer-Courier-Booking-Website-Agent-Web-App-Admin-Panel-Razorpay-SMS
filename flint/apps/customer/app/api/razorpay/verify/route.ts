@@ -59,6 +59,9 @@ export async function POST(request: Request) {
   if (!captured) {
     return NextResponse.json({ verified: false })
   }
+  if (data.order_id !== razorpayOrderId) {
+    return NextResponse.json({ verified: false })
+  }
 
   const db = getSupabaseAdmin() ?? (await import('@cbp/supabase')).supabase
   const { data: payment } = await db
@@ -81,9 +84,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
 
-  const capturedAmount = Number(payment.amount) || 0
-  const orderTotal = Number(order?.total_amount) || 0
-  if (Math.round(capturedAmount * 100) !== Math.round(orderTotal * 100)) {
+  const capturedAmount = Number(data.amount) || 0
+  const orderTotalPaise = Math.round((Number(order?.total_amount) || 0) * 100)
+  if (capturedAmount !== orderTotalPaise) {
     return NextResponse.json({ verified: false })
   }
 

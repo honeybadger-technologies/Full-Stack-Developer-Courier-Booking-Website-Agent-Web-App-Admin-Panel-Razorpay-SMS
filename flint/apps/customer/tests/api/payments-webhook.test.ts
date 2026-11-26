@@ -1,5 +1,5 @@
 import { createHmac } from 'crypto'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from '../../app/api/payments/webhook/route'
 import { mockDbQuery } from '../helpers/mock-db'
 
@@ -39,10 +39,15 @@ function capturedEventBody(orderId: string, amount: number) {
 describe('POST /api/payments/webhook', () => {
   beforeEach(() => {
     dbFromMock.mockReset()
+    process.env.RAZORPAY_WEBHOOK_SECRET = 'rzp_webhook_demo_secret'
+  })
+
+  afterEach(() => {
+    delete process.env.RAZORPAY_WEBHOOK_SECRET
   })
 
   it('returns 400 when the webhook signature is missing', async () => {
-    const { rawBody } = capturedEventBody('rzp_1', 360)
+    const { rawBody } = capturedEventBody('rzp_1', 36000)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -56,7 +61,7 @@ describe('POST /api/payments/webhook', () => {
   })
 
   it('returns 400 when the webhook signature is invalid', async () => {
-    const { rawBody } = capturedEventBody('rzp_1', 360)
+    const { rawBody } = capturedEventBody('rzp_1', 36000)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -69,6 +74,21 @@ describe('POST /api/payments/webhook', () => {
     expect(await res.json()).toEqual({ error: 'invalid signature' })
   })
 
+  it('returns 503 when the webhook secret is not configured', async () => {
+    process.env.RAZORPAY_WEBHOOK_SECRET = ''
+    const { rawBody } = capturedEventBody('rzp_1', 36000)
+    const res = await POST(
+      makeRequest('/api/payments/webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': signWebhookPayload(rawBody) },
+        body: rawBody,
+      })
+    )
+
+    expect(res.status).toBe(503)
+    expect(await res.json()).toEqual({ error: 'Razorpay webhook secret is not configured' })
+  })
+
   it('returns received true when no payment matches the order', async () => {
     dbFromMock.mockImplementation((t: string) => {
       if (t === 'payments') {
@@ -77,7 +97,7 @@ describe('POST /api/payments/webhook', () => {
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const { rawBody, signature } = capturedEventBody('rzp_missing', 360)
+    const { rawBody, signature } = capturedEventBody('rzp_missing', 36000)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -91,7 +111,7 @@ describe('POST /api/payments/webhook', () => {
   })
 
   it('marks the payment completed on a valid payment.captured event without shipping the order', async () => {
-    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 360, status: 'pending' }, error: null })
+    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 36000, status: 'pending' }, error: null })
     const paymentsUpdate = mockDbQuery({ data: { id: 'pay_1', status: 'completed', razorpay_payment_id: 'pay_9' }, error: null })
     const ordersSelect = mockDbQuery({ data: { id: 'ord_1', status: 'pending', total_amount: 360 }, error: null })
     let paymentCalls = 0
@@ -106,7 +126,7 @@ describe('POST /api/payments/webhook', () => {
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const { rawBody, signature } = capturedEventBody('rzp_1', 360)
+    const { rawBody, signature } = capturedEventBody('rzp_1', 36000)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -122,7 +142,7 @@ describe('POST /api/payments/webhook', () => {
   })
 
   it('does not mark the payment completed when the captured amount does not match the order total', async () => {
-    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 500, status: 'pending' }, error: null })
+    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 50000, status: 'pending' }, error: null })
     const paymentsUpdate = mockDbQuery({ data: { id: 'pay_1', status: 'completed', razorpay_payment_id: 'pay_9' }, error: null })
 
     dbFromMock.mockImplementation((t: string) => {
@@ -132,7 +152,7 @@ describe('POST /api/payments/webhook', () => {
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const { rawBody, signature } = capturedEventBody('rzp_1', 500)
+    const { rawBody, signature } = capturedEventBody('rzp_1', 50000)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -149,12 +169,12 @@ describe('POST /api/payments/webhook', () => {
   it('does not mark the payment completed when the event is not payment.captured', async () => {
     dbFromMock.mockImplementation((t: string) => {
       if (t === 'payments') {
-        return mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 360, status: 'pending' }, error: null })
+        return mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 36000, status: 'pending' }, error: null })
       }
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const payload = { event: 'payment.failed', payload: { payment: { entity: { order_id: 'rzp_1', amount: 360 } } } }
+    const payload = { event: 'payment.failed', payload: { payment: { entity: { order_id: 'rzp_1', amount: 36000 } } } }
     const rawBody = JSON.stringify(payload)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
