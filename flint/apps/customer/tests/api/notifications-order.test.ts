@@ -102,8 +102,8 @@ describe('POST /api/notifications/order', () => {
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const fetchMock = vi.fn(async (url: string) => {
-      if (url.includes('/sms')) {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).includes('/sms')) {
         return new Response(JSON.stringify({ type: 'success', messageId: 'msg91_mock_1' }), { status: 200 })
       }
       return new Response(JSON.stringify({ success: true }), { status: 200 })
@@ -124,5 +124,12 @@ describe('POST /api/notifications/order', () => {
       notification: { template: 'order_confirmed', status: 'sent' },
     })
     expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    const emailCall = fetchMock.mock.calls.find((call) => String(call[0]).includes('/email'))
+    expect(emailCall).toBeDefined()
+    const emailBody = JSON.parse((emailCall?.[1] as RequestInit)?.body as string)
+    expect(emailBody.subject).toBe('Order confirmed')
+    expect(typeof emailBody.text).toBe('string')
+    expect(emailBody.text).toContain('ord_1')
   })
 })

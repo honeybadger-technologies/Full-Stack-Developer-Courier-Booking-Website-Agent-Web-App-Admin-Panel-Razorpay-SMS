@@ -31,8 +31,8 @@ function signWebhookPayload(rawBody: string) {
   return createHmac('sha256', RAZORPAY_WEBHOOK_SECRET).update(rawBody).digest('hex')
 }
 
-function capturedEventBody(orderId: string, amount: number) {
-  const payload = { event: 'payment.captured', payload: { payment: { entity: { order_id: orderId, amount } } } }
+function capturedEventBody(orderId: string, amount: number, paymentId = 'pay_evt_9') {
+  const payload = { event: 'payment.captured', payload: { payment: { entity: { id: paymentId, order_id: orderId, amount } } } }
   return { rawBody: JSON.stringify(payload), signature: signWebhookPayload(JSON.stringify(payload)) }
 }
 
@@ -126,7 +126,7 @@ describe('POST /api/payments/webhook', () => {
       return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
-    const { rawBody, signature } = capturedEventBody('rzp_1', 36000)
+    const { rawBody, signature } = capturedEventBody('rzp_1', 36000, 'pay_evt_9')
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
@@ -137,7 +137,7 @@ describe('POST /api/payments/webhook', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ received: true })
-    expect(paymentsUpdate.update).toHaveBeenCalledWith({ status: 'completed', razorpay_payment_id: 'pay_9' })
+    expect(paymentsUpdate.update).toHaveBeenCalledWith({ status: 'completed', razorpay_payment_id: 'pay_evt_9' })
     expect(ordersSelect.update).not.toHaveBeenCalled()
   })
 

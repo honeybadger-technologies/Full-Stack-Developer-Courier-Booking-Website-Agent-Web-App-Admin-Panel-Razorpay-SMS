@@ -20,9 +20,16 @@ function WeightEntryPageContent() {
   const [priceDifference, setPriceDifference] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!orderId) return
-    fetchOrderDetails()
-  }, [orderId])
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        router.push('/auth/login')
+        return
+      }
+      if (orderId) fetchOrderDetails()
+    }
+    checkSession()
+  }, [orderId, router])
 
   const fetchOrderDetails = async () => {
     try {

@@ -2,25 +2,31 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@cbp/supabase'
 
 export default function AgentDashboard() {
   const [pickups, setPickups] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user || null)
 
-      if (!session?.user) return
+      if (!session?.user) {
+        setLoading(false)
+        router.push('/auth/login')
+        return
+      }
 
       fetchPickups(session.user.id)
     }
 
     checkSession()
-  }, [])
+  }, [router])
 
   const fetchPickups = async (agentId: string) => {
     try {

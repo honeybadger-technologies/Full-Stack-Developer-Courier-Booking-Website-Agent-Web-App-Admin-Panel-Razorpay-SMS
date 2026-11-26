@@ -168,10 +168,11 @@ function wantsSingle(req) {
 
 function sendResult(res, status, result, single) {
   if (single) {
-    if (result === null || result === undefined) {
+    const row = Array.isArray(result) ? result[0] : result
+    if (row === null || row === undefined) {
       return sendError(res, 406, { message: 'JSON object requested but no row found' })
     }
-    return sendJson(res, status, result)
+    return sendJson(res, status, row)
   }
   return sendJson(res, status, Array.isArray(result) ? result : [result])
 }
@@ -264,6 +265,17 @@ const server = createServer(async (req, res) => {
   const pathname = url.pathname.replace(/\/+$/, '') || '/'
   const single = wantsSingle(req)
   const method = (req.method || 'GET').toUpperCase()
+
+  // CORS preflight: answer with 204 + CORS headers so browsers can call the API.
+  if (method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Max-Age': '86400',
+    })
+    return res.end()
+  }
 
   try {
     // --- Supabase Auth ---
@@ -413,16 +425,14 @@ const server = createServer(async (req, res) => {
       const body = await readBody(req)
       const orderId = `rzp_order_demo_${paymentSeq + 1}`
       const paymentId = `pay_demo_${paymentSeq + 1}`
-      const signature = signPayment(orderId, paymentId)
       paymentsByOrder.set(orderId, {
         id: paymentId,
         order_id: orderId,
         razorpay_order_id: orderId,
-        razorpay_payment_id: paymentId,
+        razorpay_payment_id: null,
         amount: body.amount ?? 0,
-        status: 'captured',
+        status: 'pending',
         payment_method: 'upi',
-        signature,
         created_at: new Date().toISOString(),
       })
       return sendJson(res, 200, {
@@ -431,18 +441,6 @@ const server = createServer(async (req, res) => {
         amount: body.amount ?? 0,
         currency: 'INR',
         status: 'created',
-        signature,
-        payment: {
-          id: paymentId,
-          entity: 'payment',
-          order_id: orderId,
-          razorpay_order_id: orderId,
-          razorpay_payment_id: paymentId,
-          amount: body.amount ?? 0,
-          status: 'captured',
-          payment_method: 'upi',
-          signature,
-        },
       })
     }
 
@@ -452,6 +450,23 @@ const server = createServer(async (req, res) => {
       const payment = [...paymentsByOrder.values()].find((p) => p.id === paymentId)
       if (!payment) return sendError(res, 404, { message: 'Payment not found' })
       return sendJson(res, 200, payment)
+    }
+
+    // --- Razorpay demo checkout: turn a created Razorpay order into a captured payment
+    if (pathname === '/v1/demo/checkout' && method === 'POST') {
+      const body = await readBody(req)
+      const razorpayOrderId = typeof body.razorpayOrderId === 'string' ? body.razorpayOrderId : ''
+      const payment = [...paymentsByOrder.values()].find(
+        (p) => p.razorpay_order_id === razorpayOrderId || p.id === razorpayOrderId,
+      )
+      if (!payment) {
+        return sendError(res, 404, { message: 'Payment not found' })
+      }
+      const razorpayPaymentId = payment.id
+      payment.status = 'captured'
+      payment.razorpay_payment_id = razorpayPaymentId
+      payment.signature = signPayment(razorpayOrderId, razorpayPaymentId)
+      return sendJson(res, 200, { razorpayPaymentId, razorpaySignature: payment.signature })
     }
 
     // --- Razorpay webhooks (demo helper that signs a payment.captured event) ---

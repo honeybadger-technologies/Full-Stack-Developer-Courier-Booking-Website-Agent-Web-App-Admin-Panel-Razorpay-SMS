@@ -67,7 +67,7 @@ export async function POST(request: Request) {
   const emailResult = await fetch('http://localhost:3000/api/notifications/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to: order.phone, subject: tpl.subject, body: emailBody }),
+    body: JSON.stringify({ to: order.phone, subject: tpl.subject, text: emailBody }),
   })
   const emailData = await emailResult.json().catch(() => null)
 

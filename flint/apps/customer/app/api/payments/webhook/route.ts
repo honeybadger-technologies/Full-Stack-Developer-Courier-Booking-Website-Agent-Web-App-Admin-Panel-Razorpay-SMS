@@ -28,6 +28,7 @@ export async function POST(request: Request) {
   const event = payload?.event
   const orderId = payload?.payload?.payment?.entity?.order_id
   const amount = payload?.payload?.payment?.entity?.amount
+  const paymentId = payload?.payload?.payment?.entity?.id
 
   if (event !== 'payment.captured') {
     return NextResponse.json({ received: true })
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
   if (payment.status !== 'completed') {
     const { error: updateError } = await db
       .from('payments')
-      .update({ status: 'completed', razorpay_payment_id: payment.razorpay_payment_id })
+      .update({ status: 'completed', razorpay_payment_id: paymentId })
       .eq('id', payment.id)
       .select()
       .single()
