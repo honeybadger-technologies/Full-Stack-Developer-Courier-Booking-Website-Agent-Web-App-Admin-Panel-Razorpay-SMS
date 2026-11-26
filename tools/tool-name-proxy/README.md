@@ -7,8 +7,8 @@ given.
 
 `flint` ignores Claude Code's tool list and calls the names it was trained on: `bash` instead
 of `Bash`, `read` with a `path` argument instead of `Read` with `file_path`. Claude Code rejects
-every such call (`No such tool available: bash`), and flint retries the same call forever: 135
-failed calls in 5 minutes on 2026-11-24, 10 in auto mode on 2026-11-16. The error message does not
+every such call (`No such tool available: bash`), and flint retries the same call forever: 374
+failed calls in 13 minutes on 2026-11-24 (369 of them `pwd && ls -la`), 10 in auto mode on 2026-11-16. The error message does not
 correct it.
 
 Tested straight against Ollama, without Claude Code: with two tools and a one-line request flint
