@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY || ''
+const MSG91_BASE_URL = process.env.MSG91_BASE_URL || 'https://api.msg91.com/sms/v3/sendText'
 
 export async function POST(request: Request) {
   const body = await request.json()
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'SMS gateway is not configured' }, { status: 503 })
   }
 
-  const res = await fetch('https://api.msg91.com/sms/v3/sendText', {
+  const res = await fetch(MSG91_BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', authkey: MSG91_AUTH_KEY },
     body: JSON.stringify({

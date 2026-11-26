@@ -12,11 +12,17 @@ export async function POST(request: Request) {
   }
 
   const from = process.env.SMTP_FROM || process.env.NEXT_PUBLIC_APP_EMAIL || 'noreply@courier.com'
-  const transport = createTransport({
-    host: process.env.SMTP_HOST || 'localhost',
-    port: Number(process.env.SMTP_PORT || 587),
-    auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS || '' } : undefined,
-  })
+  const transport = createTransport(
+    process.env.SMTP_TRANSPORT === 'json'
+      ? { jsonTransport: true }
+      : {
+          host: process.env.SMTP_HOST || 'localhost',
+          port: Number(process.env.SMTP_PORT || 587),
+          auth: process.env.SMTP_USER
+            ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS || '' }
+            : undefined,
+        }
+  )
 
   const info = await transport.sendMail({
     from,
