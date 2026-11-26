@@ -1,0 +1,5 @@
+
+> @cbp/customer@0.1.0 lint /Users/ziv.lifshits/Workspace/honeybadger/courier-bench-flint-guided/flint/apps/customer
+> next lint
+
+✔ No ESLint warnings or errors

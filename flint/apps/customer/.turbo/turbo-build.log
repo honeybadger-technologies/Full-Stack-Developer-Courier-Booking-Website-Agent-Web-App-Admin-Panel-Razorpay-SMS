@@ -1,0 +1,18 @@
+
+> @cbp/customer@0.1.0 build /Users/ziv.lifshits/Workspace/honeybadger/courier-bench-flint-guided/flint/apps/customer
+> next build
+
+  ▲ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./app/layout.tsx
+Module not found: Can't resolve './styles/globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+> Build failed because of webpack errors
+ ELIFECYCLE  Command failed with exit code 1.

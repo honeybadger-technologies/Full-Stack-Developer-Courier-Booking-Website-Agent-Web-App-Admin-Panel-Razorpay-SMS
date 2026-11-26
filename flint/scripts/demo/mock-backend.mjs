@@ -23,6 +23,7 @@
  * (defaults to http://127.0.0.1:4999, override with PORT)
  */
 import { createServer } from 'node:http'
+import { createHmac } from 'node:crypto'
 
 const PORT = Number(process.env.PORT ?? 4999)
 const HOST = '127.0.0.1'
@@ -68,6 +69,17 @@ const usersByToken = {
     is_anonymous: false,
     email_confirmed_at: '2026-01-01T00:00:00Z',
   },
+}
+
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_SECRET || 'rzp_demo_secret'
+const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || 'rzp_webhook_demo_secret'
+
+function signPayment(razorpayOrderId, razorpayPaymentId) {
+  return createHmac('sha256', RAZORPAY_KEY_SECRET).update(`${razorpayOrderId}|${razorpayPaymentId}`).digest('hex')
+}
+
+function signWebhookPayload(rawBody) {
+  return createHmac('sha256', RAZORPAY_WEBHOOK_SECRET).update(rawBody).digest('hex')
 }
 
 function getToken(req) {
@@ -401,6 +413,7 @@ const server = createServer(async (req, res) => {
       const body = await readBody(req)
       const orderId = `rzp_order_demo_${paymentSeq + 1}`
       const paymentId = `pay_demo_${paymentSeq + 1}`
+      const signature = signPayment(orderId, paymentId)
       paymentsByOrder.set(orderId, {
         id: paymentId,
         order_id: orderId,
@@ -409,9 +422,28 @@ const server = createServer(async (req, res) => {
         amount: body.amount ?? 0,
         status: 'captured',
         payment_method: 'upi',
+        signature,
         created_at: new Date().toISOString(),
       })
-      return sendJson(res, 200, { id: orderId, entity: 'order', amount: body.amount ?? 0, currency: 'INR', status: 'created' })
+      return sendJson(res, 200, {
+        id: orderId,
+        entity: 'order',
+        amount: body.amount ?? 0,
+        currency: 'INR',
+        status: 'created',
+        signature,
+        payment: {
+          id: paymentId,
+          entity: 'payment',
+          order_id: orderId,
+          razorpay_order_id: orderId,
+          razorpay_payment_id: paymentId,
+          amount: body.amount ?? 0,
+          status: 'captured',
+          payment_method: 'upi',
+          signature,
+        },
+      })
     }
 
     const paymentMatch = /^\/v1\/payments\/([^/]+)$/.exec(pathname)
@@ -420,6 +452,17 @@ const server = createServer(async (req, res) => {
       const payment = [...paymentsByOrder.values()].find((p) => p.id === paymentId)
       if (!payment) return sendError(res, 404, { message: 'Payment not found' })
       return sendJson(res, 200, payment)
+    }
+
+    // --- Razorpay webhooks (demo helper that signs a payment.captured event) ---
+    if (pathname === '/v1/webhooks/payment-captured' && method === 'POST') {
+      const body = await readBody(req)
+      const orderId = typeof body.order_id === 'string' ? body.order_id : ''
+      const amount = Number(body.amount) || 0
+      const payload = { event: 'payment.captured', payload: { payment: { entity: { order_id: orderId, amount } } } }
+      const rawBody = JSON.stringify(payload)
+      const signedPayload = { event: payload.event, payload: payload.payload }
+      return sendJson(res, 200, { event: signedPayload.event, payload: signedPayload.payload, signature: signWebhookPayload(rawBody), rawBody })
     }
 
     // --- MSG91 ---

@@ -13,13 +13,24 @@ export async function POST(request: Request) {
 
   const body = await request.json()
   const orderId = typeof body.orderId === 'string' ? body.orderId : ''
-  const amount = Number(body.amount) || 0
 
   const db = getSupabaseAdmin() ?? (await import('@cbp/supabase')).supabase
   const { data: order } = await db.from('orders').select('*').eq('id', orderId).single()
   if (!order) {
     return NextResponse.json({ error: 'order not found' }, { status: 404 })
   }
+
+  const isOwner = order.customer_id === user.id
+  let isAgentOrAdmin = false
+  if (!isOwner) {
+    const { data: profile } = await db.from('profiles').select('role').eq('id', user.id).single()
+    isAgentOrAdmin = profile?.role === 'agent' || profile?.role === 'admin'
+  }
+  if (!isOwner && !isAgentOrAdmin) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  }
+
+  const amount = Number(order.total_amount) || 0
 
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
     return NextResponse.json(
@@ -36,7 +47,6 @@ export async function POST(request: Request) {
     },
     body: JSON.stringify({
       key_id: RAZORPAY_KEY_ID,
-      key_secret: RAZORPAY_KEY_SECRET,
       amount: Math.round(amount * 100),
       currency: 'INR',
       receipt: `rcpt_${orderId}`,
@@ -50,12 +60,40 @@ export async function POST(request: Request) {
   }
 
   const razorpayOrderId = data.id as string
+  const razorpayPaymentId = (data.payment?.id ?? razorpayOrderId) as string
+  const paymentSignature = (data.payment?.signature ?? '') as string
   const paymentLink = `https://rzp.io/${razorpayOrderId}`
+
+  const { error: updateError } = await db
+    .from('orders')
+    .update({ razorpay_order_id: razorpayOrderId })
+    .eq('id', orderId)
+    .select()
+    .single()
+  if (updateError) {
+    return NextResponse.json({ error: 'failed to update order' }, { status: 500 })
+  }
+
+  const { data: payment, error: paymentError } = await db
+    .from('payments')
+    .insert({
+      order_id: orderId,
+      razorpay_order_id: razorpayOrderId,
+      amount,
+      status: 'pending',
+    })
+    .select()
+    .single()
+  if (paymentError) {
+    return NextResponse.json({ error: 'failed to record payment' }, { status: 500 })
+  }
 
   return NextResponse.json({
     razorpayOrderId,
+    razorpayPaymentId,
     amount,
     currency: 'INR',
     paymentLink,
+    signature: paymentSignature,
   })
 }

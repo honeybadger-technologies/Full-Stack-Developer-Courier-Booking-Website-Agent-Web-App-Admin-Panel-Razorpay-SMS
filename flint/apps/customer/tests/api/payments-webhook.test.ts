@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from '../../app/api/payments/webhook/route'
 import { mockDbQuery } from '../helpers/mock-db'
@@ -20,22 +21,19 @@ vi.mock('@supabase/supabase-js', () => ({
 }))
 
 const BASE_URL = 'http://localhost:3000'
+const RAZORPAY_WEBHOOK_SECRET = 'rzp_webhook_demo_secret'
 
 function makeRequest(path: string, init?: RequestInit) {
   return new Request(`${BASE_URL}${path}`, init)
 }
 
-/**
- * Mocks per-table sequential call results, e.g. for flows that select then update.
- */
-function mockTableResults(results: Record<string, Array<{ data: unknown; error?: unknown }>>) {
-  const counters: Record<string, number> = {}
-  dbFromMock.mockImplementation((t: string) => {
-    const calls = counters[t] ?? 0
-    counters[t] = calls + 1
-    const list = results[t] ?? [{ data: null, error: { message: 'not found' } }]
-    return mockDbQuery(list[calls] ?? { data: null, error: { message: 'not found' } })
-  })
+function signWebhookPayload(rawBody: string) {
+  return createHmac('sha256', RAZORPAY_WEBHOOK_SECRET).update(rawBody).digest('hex')
+}
+
+function capturedEventBody(orderId: string, amount: number) {
+  const payload = { event: 'payment.captured', payload: { payment: { entity: { order_id: orderId, amount } } } }
+  return { rawBody: JSON.stringify(payload), signature: signWebhookPayload(JSON.stringify(payload)) }
 }
 
 describe('POST /api/payments/webhook', () => {
@@ -43,14 +41,48 @@ describe('POST /api/payments/webhook', () => {
     dbFromMock.mockReset()
   })
 
+  it('returns 400 when the webhook signature is missing', async () => {
+    const { rawBody } = capturedEventBody('rzp_1', 360)
+    const res = await POST(
+      makeRequest('/api/payments/webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: rawBody,
+      })
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'invalid signature' })
+  })
+
+  it('returns 400 when the webhook signature is invalid', async () => {
+    const { rawBody } = capturedEventBody('rzp_1', 360)
+    const res = await POST(
+      makeRequest('/api/payments/webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': 'wrong-signature' },
+        body: rawBody,
+      })
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'invalid signature' })
+  })
+
   it('returns received true when no payment matches the order', async () => {
-    mockTableResults({ payments: [{ data: null, error: { message: 'not found' } }] })
+    dbFromMock.mockImplementation((t: string) => {
+      if (t === 'payments') {
+        return mockDbQuery({ data: null, error: { message: 'not found' } })
+      }
+      return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
+    })
 
+    const { rawBody, signature } = capturedEventBody('rzp_missing', 360)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ razorpayOrderId: 'rzp_missing', event: 'payment.captured' }),
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': signature },
+        body: rawBody,
       })
     )
 
@@ -58,50 +90,82 @@ describe('POST /api/payments/webhook', () => {
     expect(await res.json()).toEqual({ received: true })
   })
 
-  it('marks the payment completed and the order shipped on payment.captured', async () => {
-    mockTableResults({
-      payments: [
-        { data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', status: 'pending' }, error: null },
-        { data: { id: 'pay_1', status: 'completed' }, error: null },
-      ],
-      orders: [
-        {
-          data: { id: 'ord_1', customer_id: '11111111-1111-1111-1111-111111111111', status: 'pending' },
-          error: null,
-        },
-        { data: { id: 'ord_1', status: 'shipped', razorpay_payment_id: 'pay_9' }, error: null },
-      ],
+  it('marks the payment completed on a valid payment.captured event without shipping the order', async () => {
+    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 360, status: 'pending' }, error: null })
+    const paymentsUpdate = mockDbQuery({ data: { id: 'pay_1', status: 'completed', razorpay_payment_id: 'pay_9' }, error: null })
+    const ordersSelect = mockDbQuery({ data: { id: 'ord_1', status: 'pending', total_amount: 360 }, error: null })
+    let paymentCalls = 0
+    dbFromMock.mockImplementation((t: string) => {
+      if (t === 'payments') {
+        paymentCalls += 1
+        return paymentCalls === 1 ? paymentsSelect : paymentsUpdate
+      }
+      if (t === 'orders') {
+        return ordersSelect
+      }
+      return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
+    const { rawBody, signature } = capturedEventBody('rzp_1', 360)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ razorpayOrderId: 'rzp_1', event: 'payment.captured' }),
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': signature },
+        body: rawBody,
       })
     )
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ received: true })
+    expect(paymentsUpdate.update).toHaveBeenCalledWith({ status: 'completed', razorpay_payment_id: 'pay_9' })
+    expect(ordersSelect.update).not.toHaveBeenCalled()
   })
 
-  it('does not touch the order when the event is not payment.captured', async () => {
-    mockTableResults({
-      payments: [
-        { data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', status: 'pending' }, error: null },
-      ],
-      orders: [{ data: { id: 'ord_1', status: 'pending' }, error: null }],
+  it('does not mark the payment completed when the captured amount does not match the order total', async () => {
+    const paymentsSelect = mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 500, status: 'pending' }, error: null })
+    const paymentsUpdate = mockDbQuery({ data: { id: 'pay_1', status: 'completed', razorpay_payment_id: 'pay_9' }, error: null })
+
+    dbFromMock.mockImplementation((t: string) => {
+      if (t === 'payments') {
+        return paymentsSelect
+      }
+      return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
     })
 
+    const { rawBody, signature } = capturedEventBody('rzp_1', 500)
     const res = await POST(
       makeRequest('/api/payments/webhook', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ razorpayOrderId: 'rzp_1', event: 'payment.failed' }),
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': signature },
+        body: rawBody,
       })
     )
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ received: true })
+    expect(paymentsUpdate.update).not.toHaveBeenCalled()
+  })
+
+  it('does not mark the payment completed when the event is not payment.captured', async () => {
+    dbFromMock.mockImplementation((t: string) => {
+      if (t === 'payments') {
+        return mockDbQuery({ data: { id: 'pay_1', order_id: 'ord_1', razorpay_order_id: 'rzp_1', razorpay_payment_id: 'pay_9', amount: 360, status: 'pending' }, error: null })
+      }
+      return mockDbQuery({ data: null, error: { message: `unexpected table: ${t}` } })
+    })
+
+    const payload = { event: 'payment.failed', payload: { payment: { entity: { order_id: 'rzp_1', amount: 360 } } } }
+    const rawBody = JSON.stringify(payload)
+    const res = await POST(
+      makeRequest('/api/payments/webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': signWebhookPayload(rawBody) },
+        body: rawBody,
+      })
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ received: true })
+    expect(dbFromMock).not.toHaveBeenCalled()
   })
 })
