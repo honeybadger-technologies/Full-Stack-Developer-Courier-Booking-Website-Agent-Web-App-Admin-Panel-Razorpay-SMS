@@ -79,7 +79,7 @@ export default function RatesPage() {
         <h1 className="text-2xl font-bold text-gray-900">Rate Tables</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark"
+          className="bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark"
         >
           {showForm ? 'Cancel' : 'Add Rate'}
         </button>
@@ -157,7 +157,7 @@ export default function RatesPage() {
             </div>
             <button
               type="submit"
-              className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark"
+              className="bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark"
             >
               Save Rate
             </button>
@@ -165,7 +165,7 @@ export default function RatesPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>

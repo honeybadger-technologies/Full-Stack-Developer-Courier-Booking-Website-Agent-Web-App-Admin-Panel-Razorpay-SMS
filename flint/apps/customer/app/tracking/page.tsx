@@ -32,10 +32,10 @@ export default function TrackingPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'pending': return 'bg-amber-100 text-amber-800'
       case 'picked_up': return 'bg-blue-100 text-blue-800'
       case 'shipped': return 'bg-purple-100 text-purple-800'
-      case 'delivered': return 'bg-green-100 text-green-800'
+      case 'delivered': return 'bg-gray-100 text-gray-800'
       case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -57,7 +57,7 @@ export default function TrackingPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="bg-primary text-white px-6 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {loading ? 'Searching...' : 'Track'}
           </button>
@@ -73,7 +73,7 @@ export default function TrackingPage() {
       {order && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="bg-primary text-white p-6">
-            <h2 className="text-2xl font-bold">Order #{order.id.slice(-8)}</h2>
+            <h2 className="text-2xl font-bold">Order #{order.id}</h2>
             <p className="text-primary-200">Tracking Status</p>
           </div>
 

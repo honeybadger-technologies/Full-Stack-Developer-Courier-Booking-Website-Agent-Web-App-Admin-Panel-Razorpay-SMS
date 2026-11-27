@@ -90,12 +90,14 @@ export default function OrderTrackingPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Order #{orderId.slice(-8)}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Order #{orderId}</h1>
           <p className="text-gray-600">{order.receiver_name}</p>
         </div>
         <div className="text-right">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            order.status === 'delivered' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            order.status === 'delivered'
+              ? 'bg-gray-100 text-gray-800'
+              : 'bg-amber-100 text-amber-800'
           }`}>
             {order.status.replace('_', ' ').toUpperCase()}
           </span>

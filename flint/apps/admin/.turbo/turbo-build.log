@@ -13,7 +13,7 @@
 21:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
 
 ./app/orders/page.tsx
-14:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+25:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
 
 ./app/print/cn22/[id]/page.tsx
 19:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
@@ -28,13 +28,13 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
    Collecting page data ...
    Generating static pages (0/9) ...
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (2/9) 
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (4/9) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (6/9) 
  ✓ Generating static pages (9/9)
@@ -42,12 +42,12 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
    Collecting build traces ...
 
 Route (app)                              Size     First Load JS
-┌ ○ /                                    2.15 kB         163 kB
+┌ ○ /                                    2.33 kB         163 kB
 ├ ○ /_not-found                          875 B          88.1 kB
 ├ ○ /agents                              1.65 kB         155 kB
 ├ ○ /auth/login                          2.12 kB         156 kB
 ├ ○ /customers                           1.67 kB         155 kB
-├ ○ /orders                              2.37 kB         163 kB
+├ ○ /orders                              2.64 kB         163 kB
 ├ ƒ /orders/[id]                         2.83 kB         156 kB
 ├ ƒ /print/cn22/[id]                     2.35 kB         156 kB
 ├ ƒ /print/gst/[id]                      2.58 kB         156 kB

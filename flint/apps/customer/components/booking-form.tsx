@@ -106,7 +106,7 @@ export function BookingForm() {
             name="receiverName"
             value={formData.receiverName}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Enter receiver name"
           />
         </div>
@@ -119,7 +119,7 @@ export function BookingForm() {
             name="receiverAddress"
             value={formData.receiverAddress}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             rows={3}
             placeholder="Enter receiver full address"
           />
@@ -133,7 +133,7 @@ export function BookingForm() {
             name="destinationCountry"
             value={formData.destinationCountry}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="">Select a country</option>
             {destinations.map((d) => (
@@ -155,7 +155,7 @@ export function BookingForm() {
             min="0.1"
             value={formData.weight}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Enter weight in kg"
           />
         </div>
@@ -169,7 +169,7 @@ export function BookingForm() {
             name="scheduledPickupDate"
             value={formData.scheduledPickupDate}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
 
@@ -182,7 +182,7 @@ export function BookingForm() {
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Enter your phone number"
           />
         </div>
@@ -195,7 +195,7 @@ export function BookingForm() {
             name="notes"
             value={formData.notes}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             rows={2}
             placeholder="Any additional information about the parcel"
           />
@@ -204,7 +204,7 @@ export function BookingForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Creating Order...' : 'Create Order'}
         </button>

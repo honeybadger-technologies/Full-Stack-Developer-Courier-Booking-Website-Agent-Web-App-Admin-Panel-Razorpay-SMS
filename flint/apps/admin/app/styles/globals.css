@@ -62,3 +62,23 @@ body {
   padding: 2rem;
   flex: 1;
 }
+
+/* Mobile: collapse the sidebar behind a menu toggle */
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    z-index: 40;
+    transition: left 0.2s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}

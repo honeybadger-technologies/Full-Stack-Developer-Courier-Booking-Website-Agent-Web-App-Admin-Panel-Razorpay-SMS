@@ -3,10 +3,11 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@cbp/supabase'
-import { isDemoCheckoutEnabled } from '../../lib/demo-checkout'
+import { getDemoCheckoutBaseUrl, isDemoCheckoutEnabled } from '../../lib/demo-checkout'
 
 const RAZORPAY_CHECKOUT_SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js'
-const RAZORPAY_BASE_URL = process.env.NEXT_PUBLIC_RAZORPAY_BASE_URL || 'https://api.razorpay.com/v1'
+const RAZORPAY_LIVE_BASE_URL = 'https://api.razorpay.com/v1'
+const DEMO_CHECKOUT_NOT_CONFIGURED = 'Demo checkout is not configured for this environment. Please contact support.'
 
 type Phase = 'idle' | 'creating' | 'demo' | 'verifying' | 'success' | 'error'
 
@@ -14,7 +15,12 @@ function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams?.get('orderId') || ''
-  const demoCheckout = isDemoCheckoutEnabled()
+  const demoCheckout = isDemoCheckoutEnabled({
+    NEXT_PUBLIC_DEMO_CHECKOUT: process.env.NEXT_PUBLIC_DEMO_CHECKOUT,
+  })
+  const demoBaseUrl = getDemoCheckoutBaseUrl({
+    NEXT_PUBLIC_RAZORPAY_BASE_URL: process.env.NEXT_PUBLIC_RAZORPAY_BASE_URL,
+  })
 
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -75,6 +81,11 @@ function CheckoutContent() {
 
   const handleDemoCheckout = async () => {
     if (!order) return
+    if (demoCheckout && !demoBaseUrl) {
+      setError(DEMO_CHECKOUT_NOT_CONFIGURED)
+      setPhase('error')
+      return
+    }
     setPhase('creating')
     setError(null)
     try {
@@ -93,7 +104,7 @@ function CheckoutContent() {
       setRazorpayOrderId(createData.razorpayOrderId)
 
       setPhase('demo')
-      const demoRes = await fetch(`${RAZORPAY_BASE_URL}/demo/checkout`, {
+      const demoRes = await fetch(`${demoBaseUrl}/demo/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ razorpayOrderId: createData.razorpayOrderId }),
@@ -190,7 +201,7 @@ function CheckoutContent() {
               <button
                 onClick={() => (demoCheckout ? handleDemoCheckout() : openRazorpayCheckout())}
                 disabled={phase === 'creating' || phase === 'demo' || phase === 'verifying'}
-                className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark disabled:opacity-50"
+                className="w-full bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark disabled:opacity-50"
               >
                 {phase === 'creating'
                   ? 'Creating payment...'
@@ -205,7 +216,7 @@ function CheckoutContent() {
             )}
             {phase === 'idle' && (
               <p className="text-sm text-gray-500 mt-3">
-                {demoCheckout ? 'Demo mode: payment is captured by the mock backend.' : 'Live Razorpay checkout will be used.'}
+                {demoCheckout ? (demoBaseUrl ? 'Demo mode: payment is captured by the mock backend.' : DEMO_CHECKOUT_NOT_CONFIGURED) : 'Live Razorpay checkout will be used.'}
               </p>
             )}
           </>

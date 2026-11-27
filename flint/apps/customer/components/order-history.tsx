@@ -36,12 +36,20 @@ export default function OrderHistory() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'pending': return 'bg-amber-100 text-amber-800'
       case 'picked_up': return 'bg-blue-100 text-blue-800'
       case 'shipped': return 'bg-purple-100 text-purple-800'
-      case 'delivered': return 'bg-green-100 text-green-800'
+      case 'delivered': return 'bg-gray-100 text-gray-800'
       case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getPaymentBadge = (order: any) => {
+    const paid = order?.razorpay_payment_id != null
+    return {
+      label: paid ? 'Paid' : 'Unpaid',
+      className: paid ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800',
     }
   }
 
@@ -80,12 +88,17 @@ export default function OrderHistory() {
           <div key={order.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <span className="text-sm font-mono text-gray-600">Order #{order.id.slice(-8)}</span>
+                <span className="text-sm font-mono text-gray-600">Order #{order.id}</span>
                 <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                {order.status.replace('_', ' ')}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                  {order.status.replace('_', ' ')}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentBadge(order).className}`}>
+                  {getPaymentBadge(order).label}
+                </span>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-gray-700">
@@ -96,6 +109,9 @@ export default function OrderHistory() {
               </p>
               <p className="text-sm text-gray-700">
                 <span className="font-medium">Weight:</span> {order.weight} kg
+              </p>
+              <p className="text-sm text-gray-700">
+                <span className="font-medium">Payment:</span> {getPaymentBadge(order).label}
               </p>
             </div>
             <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
@@ -110,7 +126,7 @@ export default function OrderHistory() {
             {order.status === 'pending' && !order.razorpay_payment_id && (
               <button
                 onClick={() => router.push(`/checkout?orderId=${order.id}`)}
-                className="mt-3 w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark text-sm"
+                className="mt-3 w-full bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark text-sm"
               >
                 Pay Now
               </button>

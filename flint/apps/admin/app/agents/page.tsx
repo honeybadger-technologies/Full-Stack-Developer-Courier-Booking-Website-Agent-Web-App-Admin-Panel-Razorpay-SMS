@@ -40,7 +40,7 @@ export default function AgentsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Agents</h1>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>

@@ -192,6 +192,14 @@ function sendResult(res, status, result, single) {
 // ---------------------------------------------------------------------------
 // Seed data
 // ---------------------------------------------------------------------------
+const profileById = new Map()
+for (const token of Object.keys(usersByToken)) {
+  const u = usersByToken[token]
+  if (u?.id) {
+    profileById.set(u.id, u)
+  }
+}
+
 const rates = [
   {
     id: 'rate_uk',
@@ -230,7 +238,9 @@ const paymentsByOrder = new Map()
 const agentPickups = new Map()
 const notifications = []
 let orderSeq = 0
-let paymentSeq = 0
+// Start above the seeded payment ids (pay_demo_1..4 / rzp_order_demo_1..4) so
+// freshly created demo payments never collide with seeded ones.
+let paymentSeq = 100
 let notificationSeq = 0
 let pickupSeq = 0
 
@@ -500,14 +510,38 @@ const server = createServer(async (req, res) => {
         const prefer = String(req.headers.prefer || '')
         const wantsCount = selectParam.includes('count') || prefer.includes('count=exact')
         if (wantsCount) {
-          return sendResult(res, 200, [{ count: rows.length }], single)
+          return sendJson(res, 200, [{ count: rows.length }])
         }
-        return sendResult(res, 200, sortByCreatedAtDesc(rows), single)
+        let out = sortByCreatedAtDesc(rows)
+        if (selectParam) {
+          out = out.map((order) => {
+            const row = { ...order }
+            if (selectParam.includes('profiles')) {
+              row.profiles = profileById.get(String(order.customer_id ?? '')) ?? null
+            }
+            if (selectParam.includes('payments')) {
+              const payment = [...paymentsByOrder.values()].find((p) => p.order_id === order.id)
+              row.payments = payment ? [payment] : []
+            }
+            return row
+          })
+        }
+        return sendResult(res, 200, out, single)
       }
       if (method === 'POST') {
         const body = await readBody(req)
         const order = insertOrder(body)
         return sendJson(res, 201, order)
+      }
+      if (method === 'PATCH') {
+        const body = await readBody(req)
+        const filters = parseFilters(url.searchParams)
+        const rows = applyFilters([...orders.values()], filters)
+        const order = rows[0] ?? null
+        if (!order) return sendError(res, 404, { message: 'Order not found' })
+        Object.assign(order, body)
+        order.updated_at = new Date().toISOString()
+        return sendJson(res, 200, order)
       }
       return sendError(res, 405, { message: 'Method not allowed' })
     }
@@ -605,6 +639,12 @@ const server = createServer(async (req, res) => {
         ],
         parseFilters(url.searchParams),
       )
+      const selectParam = url.searchParams.get('select') || ''
+      const prefer = String(req.headers.prefer || '')
+      const wantsCount = selectParam.includes('count') || prefer.includes('count=exact')
+      if (wantsCount) {
+        return sendJson(res, 200, [{ count: rows.length }])
+      }
       return sendResult(res, 200, single ? (rows[0] ?? null) : rows, single)
     }
 
@@ -612,7 +652,15 @@ const server = createServer(async (req, res) => {
     if (pathname === '/rest/v1/agent_pickups') {
       if (method === 'GET') {
         const rows = applyFilters([...agentPickups.values()], parseFilters(url.searchParams))
-        return sendResult(res, 200, rows, single)
+        const selectParam = url.searchParams.get('select') || ''
+        const out = rows.map((pickup) => {
+          const row = { ...pickup }
+          if (selectParam.includes('orders')) {
+            row.orders = orders.get(String(pickup.order_id ?? '')) ?? null
+          }
+          return row
+        })
+        return sendResult(res, 200, out, single)
       }
       if (method === 'POST') {
         const body = await readBody(req)
@@ -638,16 +686,27 @@ const server = createServer(async (req, res) => {
       const body = await readBody(req)
       const orderId = `rzp_order_demo_${paymentSeq + 1}`
       const paymentId = `pay_demo_${paymentSeq + 1}`
-      paymentsByOrder.set(orderId, {
+      const receipt = typeof body.receipt === 'string' ? body.receipt : ''
+      const courierOrderId = receipt.replace(/^rcpt_/, '')
+      const existingPayment = courierOrderId
+        ? [...paymentsByOrder.values()].find((p) => p.order_id === courierOrderId)
+        : null
+      const payment = existingPayment ?? {
         id: paymentId,
-        order_id: orderId,
+        order_id: courierOrderId,
         razorpay_order_id: orderId,
         razorpay_payment_id: null,
         amount: body.amount ?? 0,
         status: 'pending',
         payment_method: 'upi',
         created_at: new Date().toISOString(),
-      })
+      }
+      payment.order_id = courierOrderId
+      payment.razorpay_order_id = orderId
+      payment.razorpay_payment_id = null
+      payment.amount = body.amount ?? 0
+      payment.status = 'pending'
+      paymentsByOrder.set(courierOrderId, payment)
       return sendJson(res, 200, {
         id: orderId,
         entity: 'order',
@@ -662,7 +721,7 @@ const server = createServer(async (req, res) => {
       const paymentId = decodeURIComponent(paymentMatch[1])
       const payment = [...paymentsByOrder.values()].find((p) => p.id === paymentId)
       if (!payment) return sendError(res, 404, { message: 'Payment not found' })
-      return sendJson(res, 200, payment)
+      return sendJson(res, 200, { ...payment, order_id: payment.razorpay_order_id || payment.order_id })
     }
 
     // --- Razorpay demo checkout: turn a created Razorpay order into a captured payment

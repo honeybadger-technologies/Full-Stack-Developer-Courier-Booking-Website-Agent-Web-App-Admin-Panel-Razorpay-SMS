@@ -18,6 +18,12 @@ MOCK_PORT="${MOCK_PORT:-4999}"
 
 export PORT="$MOCK_PORT"
 
+# The inotify-based file watcher can hit EMFILE ("too many open files, watch")
+# in this environment and take Next.js dev's route discovery down with it, which
+# makes every route fall through to the not-found page. Polling is slower but
+# reliable here.
+export WATCHPACK_POLLING=true
+
 checkPort() {
   local port="$1"
   if curl -s -o /dev/null --max-time 2 "http://127.0.0.1:${port}/" ; then

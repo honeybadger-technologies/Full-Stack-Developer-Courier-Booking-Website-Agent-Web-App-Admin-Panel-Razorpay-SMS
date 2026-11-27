@@ -79,15 +79,13 @@ export default function AgentLayout({
             Agent App
           </Link>
           <div className="flex items-center space-x-4">
-            <div className="text-sm text-gray-600">
-              <span className="font-bold text-primary">{todayPickups}</span> pickups today
-            </div>
+            <span className="text-sm text-gray-600">{user?.email}</span>
             <button
               onClick={async () => {
                 await supabase.auth.signOut()
                 router.push('/auth/login')
               }}
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Sign Out
             </button>

@@ -17,6 +17,7 @@ export default function AdminLayout({
   const isAuthPage = (pathname || '').startsWith('/auth/')
   const [activePage, setActivePage] = useState('')
   const [stats, setStats] = useState<any>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (isAuthPage) return
@@ -114,9 +115,18 @@ export default function AdminLayout({
     <div className="layout-container">
       <nav className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-primary">
-            Admin Panel
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              <span className="text-xl">☰</span>
+            </button>
+            <Link href="/" className="text-xl font-bold text-primary">
+              Admin Panel
+            </Link>
+          </div>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600">{user.email}</span>
             <button
@@ -133,14 +143,17 @@ export default function AdminLayout({
       </nav>
 
       <div className="flex">
-        <aside className="sidebar">
+        <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
           <nav>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={activePage === link.href ? 'active' : ''}
-                onClick={() => setActivePage(link.href)}
+                onClick={() => {
+                  setActivePage(link.href)
+                  setMenuOpen(false)
+                }}
               >
                 {link.name}
               </Link>

@@ -1,0 +1,4 @@
+
+> @cbp/supabase@0.1.0 lint /Users/ziv.lifshits/Workspace/honeybadger/courier-bench-flint-guided/flint/packages/supabase
+> tsc --noEmit
+

@@ -52,7 +52,7 @@ export function PriceCalculator() {
           <select
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value="">Select a country</option>
             {destinations.map((d) => (
@@ -73,7 +73,7 @@ export function PriceCalculator() {
             min="0.1"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Enter weight in kg"
           />
         </div>
@@ -81,7 +81,7 @@ export function PriceCalculator() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white px-4 py-3 rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Calculating...' : 'Calculate Price'}
         </button>

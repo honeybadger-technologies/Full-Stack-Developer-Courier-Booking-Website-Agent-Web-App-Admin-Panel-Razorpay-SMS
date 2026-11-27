@@ -48,9 +48,11 @@ export default function AgentDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'scheduled': return 'bg-yellow-100 text-yellow-800'
+      case 'scheduled': return 'bg-amber-100 text-amber-800'
       case 'picked_up': return 'bg-blue-100 text-blue-800'
       case 'handed_over': return 'bg-green-100 text-green-800'
+      case 'delivered': return 'bg-gray-100 text-gray-800'
+      case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -84,7 +86,7 @@ export default function AgentDashboard() {
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <span className="text-sm font-mono text-gray-600">
-                    Order #{pickup.orders?.id.slice(-8)}
+                    Order #{pickup.orders?.id}
                   </span>
                   <h3 className="text-base font-medium text-gray-900">{pickup.orders?.receiver_name}</h3>
                 </div>
@@ -97,6 +99,7 @@ export default function AgentDashboard() {
                 <p>{pickup.orders?.receiver_address}</p>
                 <p>{pickup.orders?.destination_country}</p>
                 <p>Weight: {pickup.orders?.weight} kg</p>
+                <p>Pickup date: {pickup.orders?.scheduled_pickup_date || pickup.created_at}</p>
               </div>
 
               <div className="flex gap-2">

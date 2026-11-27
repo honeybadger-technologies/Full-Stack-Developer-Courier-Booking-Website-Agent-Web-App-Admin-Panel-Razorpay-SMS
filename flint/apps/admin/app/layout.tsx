@@ -1,8 +1,5 @@
-import { Inter } from 'next/font/google'
 import AdminLayout from './layout-admin'
 import './styles/globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Courier Admin - Management Panel',
@@ -16,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <AdminLayout>{children}</AdminLayout>
       </body>
     </html>
