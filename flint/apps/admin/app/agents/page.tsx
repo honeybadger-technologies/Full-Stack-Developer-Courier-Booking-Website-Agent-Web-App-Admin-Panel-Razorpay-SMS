@@ -40,8 +40,25 @@ export default function AgentsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Agents</h1>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full">
+      {agents.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center text-gray-500">
+          No agents yet
+        </div>
+      ) : (
+        <div className="md:hidden space-y-3">
+          {agents.map((agent) => (
+            <div key={agent.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm font-medium text-gray-900">{agent.full_name}</p>
+              <p className="text-sm text-gray-500">{agent.email}</p>
+              <p className="text-sm text-gray-500">Phone: {agent.phone}</p>
+              <p className="text-sm text-gray-500">Joined: {new Date(agent.created_at).toLocaleDateString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full hidden md:block">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>

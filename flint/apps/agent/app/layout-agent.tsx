@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { supabase, resolveRouteAccess } from '@cbp/supabase'
 import { useRouter } from 'next/navigation'

@@ -40,8 +40,25 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full">
+      {customers.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center text-gray-500">
+          No customers yet
+        </div>
+      ) : (
+        <div className="md:hidden space-y-3">
+          {customers.map((customer) => (
+            <div key={customer.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm font-medium text-gray-900">{customer.full_name}</p>
+              <p className="text-sm text-gray-500">{customer.email}</p>
+              <p className="text-sm text-gray-500">Phone: {customer.phone}</p>
+              <p className="text-sm text-gray-500">Joined: {new Date(customer.created_at).toLocaleDateString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+        <table className="w-full hidden md:block">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>

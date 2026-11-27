@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { formatPickupCount, formatPickupDate } from '../../lib/format'
 
 describe('formatPickupCount', () => {
-  it('uses the singular form for one pickup', () => {
-    expect(formatPickupCount(1)).toBe('pickup')
+  it('includes the number for a single pickup', () => {
+    expect(formatPickupCount(1)).toBe('1 pickup')
   })
 
-  it('uses the plural form for multiple pickups', () => {
-    expect(formatPickupCount(2)).toBe('pickups')
+  it('includes the number for multiple pickups', () => {
+    expect(formatPickupCount(2)).toBe('2 pickups')
+  })
+
+  it('includes the number for zero pickups', () => {
+    expect(formatPickupCount(0)).toBe('0 pickups')
   })
 })
 

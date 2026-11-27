@@ -1,3 +1,4 @@
+import AgentLayout from './layout-agent'
 import './styles/globals.css'
 
 export const metadata = {
@@ -13,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="mobile-only">
-        {children}
+        <AgentLayout>{children}</AgentLayout>
       </body>
     </html>
   )

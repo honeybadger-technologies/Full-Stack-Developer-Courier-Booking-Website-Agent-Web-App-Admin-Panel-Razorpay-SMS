@@ -49,12 +49,12 @@ export function CustomerHomeWrapper() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <section className="order-2 lg:order-2 lg:col-start-1 lg:col-span-2 lg:row-start-2">
+        <section className="order-1 lg:order-2 lg:col-start-1 lg:col-span-2 lg:row-start-2">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Book a New Parcel</h2>
           <BookingForm />
         </section>
 
-        <section className="order-3 lg:order-3 lg:col-start-3 lg:row-start-1">
+        <section className="order-2 lg:order-3 lg:col-start-3 lg:row-start-1">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Orders</h2>
           <OrderHistory />
 
@@ -69,7 +69,7 @@ export function CustomerHomeWrapper() {
           </div>
         </section>
 
-        <section className="order-1 lg:order-1 lg:col-start-1 lg:col-span-2 lg:row-start-1">
+        <section className="order-3 lg:order-1 lg:col-start-1 lg:col-span-2 lg:row-start-1">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Calculate Your Shipping Cost</h2>
           <PriceCalculator />
         </section>

@@ -106,9 +106,59 @@ export default function OrdersPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {orders.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center text-gray-500">
+          No orders found. Orders you create will appear here.
+        </div>
+      ) : (
+        <div className="md:hidden space-y-3">
+          {orders.map((order) => {
+            const { label: paymentLabel, paid } = getPaymentStatus(order)
+            return (
+              <div key={order.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">#{order.id}</p>
+                    {order.india_post_tracking_number && (
+                      <p className="text-xs text-gray-500 mt-1">Tracking: {order.india_post_tracking_number}</p>
+                    )}
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${paid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                    {paymentLabel}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-700 space-y-1 mb-3">
+                  <p>Customer: {order.profiles?.full_name || order.profiles?.email || order.customer_id}</p>
+                  <p>Receiver: {order.receiver_name}</p>
+                  <p>Amount: ₹{Number(order.total_amount || 0).toFixed(2)}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Link href={`/orders/${order.id}`} className="text-primary text-sm font-medium">View</Link>
+                  {order.status === 'pending' && (
+                    <button onClick={() => updateOrderStatus(order.id, 'picked_up')} className="text-green-600 hover:text-green-700 text-sm font-medium">
+                      Mark Picked Up
+                    </button>
+                  )}
+                  {order.status === 'picked_up' && (
+                    <button onClick={() => updateOrderStatus(order.id, 'shipped')} className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                      Mark Shipped
+                    </button>
+                  )}
+                  {order.status === 'shipped' && (
+                    <button onClick={() => updateOrderStatus(order.id, 'delivered')} className="text-green-600 hover:text-green-700 text-sm font-medium">
+                      Mark Delivered
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full hidden md:block">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>

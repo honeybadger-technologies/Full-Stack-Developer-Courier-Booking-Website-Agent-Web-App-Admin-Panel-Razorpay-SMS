@@ -61,6 +61,7 @@ body {
   margin-left: 250px;
   padding: 2rem;
   flex: 1;
+  min-width: 0;
 }
 
 /* Mobile: collapse the sidebar behind a menu toggle */

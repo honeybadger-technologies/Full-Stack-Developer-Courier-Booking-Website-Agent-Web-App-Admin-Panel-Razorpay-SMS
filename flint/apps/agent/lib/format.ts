@@ -1,7 +1,10 @@
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function formatPickupCount(count: number): string {
-  return count === 1 ? 'pickup' : 'pickups'
+  if (count === 1) {
+    return '1 pickup'
+  }
+  return `${count} pickups`
 }
 
 export function formatPickupDate(iso: string | null | undefined): string {
