@@ -78,8 +78,8 @@ export function BookingForm() {
       setTimeout(() => {
         router.push(`/checkout?orderId=${order.id}`)
       }, 2000)
-    } catch (err) {
-      setError('Failed to create order. Please try again.')
+    } catch (err: any) {
+      setError(err?.message || 'Failed to create order. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -98,11 +98,12 @@ export function BookingForm() {
     <div className="bg-white rounded-lg shadow-md p-6">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700 mb-1">
             Receiver Name *
           </label>
           <input
             type="text"
+            id="receiverName"
             name="receiverName"
             value={formData.receiverName}
             onChange={handleInputChange}
@@ -112,10 +113,11 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="receiverAddress" className="block text-sm font-medium text-gray-700 mb-1">
             Receiver Address *
           </label>
           <textarea
+            id="receiverAddress"
             name="receiverAddress"
             value={formData.receiverAddress}
             onChange={handleInputChange}
@@ -126,10 +128,11 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="destinationCountry" className="block text-sm font-medium text-gray-700 mb-1">
             Destination Country *
           </label>
           <select
+            id="destinationCountry"
             name="destinationCountry"
             value={formData.destinationCountry}
             onChange={handleInputChange}
@@ -145,11 +148,12 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
             Weight (kg) *
           </label>
           <input
             type="number"
+            id="weight"
             name="weight"
             step="0.1"
             min="0.1"
@@ -161,11 +165,12 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="scheduledPickupDate" className="block text-sm font-medium text-gray-700 mb-1">
             Scheduled Pickup Date
           </label>
           <input
             type="date"
+            id="scheduledPickupDate"
             name="scheduledPickupDate"
             value={formData.scheduledPickupDate}
             onChange={handleInputChange}
@@ -174,11 +179,12 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
             Your Phone Number *
           </label>
           <input
             type="tel"
+            id="phone"
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
@@ -188,10 +194,11 @@ export function BookingForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
             Additional Notes
           </label>
           <textarea
+            id="notes"
             name="notes"
             value={formData.notes}
             onChange={handleInputChange}

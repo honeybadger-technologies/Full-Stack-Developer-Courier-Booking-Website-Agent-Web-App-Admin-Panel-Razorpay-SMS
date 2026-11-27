@@ -7,6 +7,7 @@ export default function RatesPage() {
   const [rates, setRates] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     destination_country: '',
     weight_range_min: '',
@@ -42,6 +43,7 @@ export default function RatesPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
 
     try {
       const { error } = await supabase
@@ -61,7 +63,7 @@ export default function RatesPage() {
       setFormData({ destination_country: '', weight_range_min: '', weight_range_max: '', base_rate: '', margin_percent: '' })
     } catch (err) {
       console.error('Error saving rate:', err)
-      alert('Failed to save rate')
+      setError('Failed to save rate. Please try again.')
     }
   }
 
@@ -85,15 +87,22 @@ export default function RatesPage() {
         </button>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       {showForm && (
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Add New Rate</h2>
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Destination Country</label>
+                <label htmlFor="destination_country" className="block text-sm font-medium text-gray-700 mb-1">Destination Country</label>
                 <input
                   type="text"
+                  id="destination_country"
                   name="destination_country"
                   value={formData.destination_country}
                   onChange={handleInputChange}
@@ -103,9 +112,10 @@ export default function RatesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Weight Min (kg)</label>
+                <label htmlFor="weight_range_min" className="block text-sm font-medium text-gray-700 mb-1">Weight Min (kg)</label>
                 <input
                   type="number"
+                  id="weight_range_min"
                   name="weight_range_min"
                   step="0.1"
                   value={formData.weight_range_min}
@@ -116,9 +126,10 @@ export default function RatesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Weight Max (kg)</label>
+                <label htmlFor="weight_range_max" className="block text-sm font-medium text-gray-700 mb-1">Weight Max (kg)</label>
                 <input
                   type="number"
+                  id="weight_range_max"
                   name="weight_range_max"
                   step="0.1"
                   value={formData.weight_range_max}
@@ -129,9 +140,10 @@ export default function RatesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Base Rate (₹)</label>
+                <label htmlFor="base_rate" className="block text-sm font-medium text-gray-700 mb-1">Base Rate (₹)</label>
                 <input
                   type="number"
+                  id="base_rate"
                   name="base_rate"
                   step="10"
                   value={formData.base_rate}
@@ -142,9 +154,10 @@ export default function RatesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Margin (%)</label>
+                <label htmlFor="margin_percent" className="block text-sm font-medium text-gray-700 mb-1">Margin (%)</label>
                 <input
                   type="number"
+                  id="margin_percent"
                   name="margin_percent"
                   step="1"
                   value={formData.margin_percent}

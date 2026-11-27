@@ -46,10 +46,11 @@ export function PriceCalculator() {
     <div className="bg-white rounded-lg shadow-md p-6">
       <form onSubmit={handleCalculate} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="destination" className="block text-sm font-medium text-gray-700 mb-1">
             Destination Country
           </label>
           <select
+            id="destination"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -64,11 +65,12 @@ export function PriceCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
             Weight (kg)
           </label>
           <input
             type="number"
+            id="weight"
             step="0.1"
             min="0.1"
             value={weight}

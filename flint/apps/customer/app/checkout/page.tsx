@@ -2,8 +2,9 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@cbp/supabase'
-import { getDemoCheckoutBaseUrl, isDemoCheckoutEnabled } from '../../lib/demo-checkout'
+import { getDemoCheckoutBaseUrl, isDemoCheckoutEnabled, runDemoPayment } from '../../lib/demo-checkout'
 
 const RAZORPAY_CHECKOUT_SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js'
 const RAZORPAY_LIVE_BASE_URL = 'https://api.razorpay.com/v1'
@@ -91,37 +92,19 @@ function CheckoutContent() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
-      const createRes = await fetch('/api/razorpay/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ orderId, amount: Math.round(Number(order.total_amount || 0) * 100) }),
+      const result = await runDemoPayment({
+        orderId,
+        amount: Math.round(Number(order.total_amount || 0) * 100),
+        baseUrl: demoBaseUrl,
+        authToken: token || '',
+        fetchFn: fetch,
       })
-      const createData = await createRes.json()
-      if (!createRes.ok) throw new Error(createData.error || 'failed to create razorpay order')
-      setRazorpayOrderId(createData.razorpayOrderId)
-
-      setPhase('demo')
-      const demoRes = await fetch(`${demoBaseUrl}/demo/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ razorpayOrderId: createData.razorpayOrderId }),
-      })
-      const demoData = await demoRes.json()
-      if (!demoRes.ok) throw new Error(demoData.message || 'demo checkout failed')
-
-      const paymentId = demoData.razorpayPaymentId
-      const signature = demoData.razorpaySignature
-      setRazorpayPaymentId(paymentId)
-      setRazorpaySignature(signature)
-
-      setPhase('verifying')
-      await verifyPayment(paymentId, signature)
+      setRazorpayOrderId(result.razorpayOrderId)
+      setRazorpayPaymentId(result.razorpayPaymentId)
+      setRazorpaySignature(result.razorpaySignature)
       setPhase('success')
     } catch (err: any) {
-      setError(err?.message || 'checkout failed')
+      setError(err?.message || 'We could not complete the payment. Please try again.')
       setPhase('error')
     }
   }
@@ -189,13 +172,13 @@ function CheckoutContent() {
             <p className="text-gray-600 mb-2">Amount: ₹{Number(order.total_amount || 0).toFixed(2)}</p>
             {phase === 'success' ? (
               <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                <p className="text-green-700 font-medium">Payment successful!</p>
-                <button
-                  onClick={() => router.push('/customer/home')}
-                  className="mt-4 w-full bg-green-600 text-white px-4 py-2 rounded-md"
+                <p className="text-green-700 font-medium">Payment received</p>
+                <Link
+                  href="/customer/home"
+                  className="mt-4 w-full bg-green-600 text-white px-4 py-2 rounded-md text-center hover:bg-green-700 block"
                 >
-                  Back to orders
-                </button>
+                  Back to Orders
+                </Link>
               </div>
             ) : (
               <button

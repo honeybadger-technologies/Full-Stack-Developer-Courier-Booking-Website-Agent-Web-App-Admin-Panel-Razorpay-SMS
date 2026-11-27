@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@cbp/supabase'
+import { formatPickupCount, formatPickupDate } from '../../lib/format'
 
 export default function AgentDashboard() {
   const [pickups, setPickups] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -30,17 +32,18 @@ export default function AgentDashboard() {
 
   const fetchPickups = async (agentId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('agent_pickups')
         .select(`*, orders(*)`)
         .eq('agent_id', agentId)
         .eq('status', 'scheduled')
         .order('created_at', { ascending: true })
 
-      if (error) throw error
+      if (fetchError) throw fetchError
       setPickups(data || [])
     } catch (err) {
       console.error('Error fetching pickups:', err)
+      setError('We could not load your pickups. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -65,11 +68,21 @@ export default function AgentDashboard() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+          {error}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-4 space-y-4">
       <div className="bg-primary text-white p-4 rounded-lg mb-6">
         <h1 className="text-2xl font-bold">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, Agent!</h1>
-        <p className="text-primary-100">You have {pickups.length} pickups scheduled for today</p>
+        <p className="text-primary-100">You have {formatPickupCount(pickups.length)} scheduled for today</p>
       </div>
 
       {pickups.length === 0 ? (
@@ -99,7 +112,7 @@ export default function AgentDashboard() {
                 <p>{pickup.orders?.receiver_address}</p>
                 <p>{pickup.orders?.destination_country}</p>
                 <p>Weight: {pickup.orders?.weight} kg</p>
-                <p>Pickup date: {pickup.orders?.scheduled_pickup_date || pickup.created_at}</p>
+                <p>Pickup date: {formatPickupDate(pickup.orders?.scheduled_pickup_date || pickup.created_at)}</p>
               </div>
 
               <div className="flex gap-2">

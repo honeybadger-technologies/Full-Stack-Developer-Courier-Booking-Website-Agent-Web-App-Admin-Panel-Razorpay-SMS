@@ -107,7 +107,7 @@ export default function OrderTrackingPage() {
       {/* Order Summary */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold mb-4">Order Details</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-600">Receiver</p>
             <p className="font-medium">{order.receiver_name}</p>
