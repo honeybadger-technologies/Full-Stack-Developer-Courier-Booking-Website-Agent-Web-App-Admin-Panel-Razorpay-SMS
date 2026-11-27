@@ -123,9 +123,14 @@ export default function OrdersPage() {
                       <p className="text-xs text-gray-500 mt-1">Tracking: {order.india_post_tracking_number}</p>
                     )}
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${paid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                    {paymentLabel}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${paid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {paymentLabel}
+                    </span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(order.status)}`}>
+                      {order.status.replace('_', ' ')}
+                    </span>
+                  </div>
                 </div>
                 <div className="text-sm text-gray-700 space-y-1 mb-3">
                   <p>Customer: {order.profiles?.full_name || order.profiles?.email || order.customer_id}</p>
