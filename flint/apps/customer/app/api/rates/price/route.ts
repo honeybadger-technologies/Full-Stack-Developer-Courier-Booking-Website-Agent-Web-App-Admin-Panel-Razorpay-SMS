@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@cbp/supabase'
+import { resolveDestination } from '../../../../lib/destinations'
 import type { PriceResult } from '@cbp/types'
 
 export async function GET(request: Request) {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   const { data: rates, error } = await supabase
     .from('rates')
     .select('*')
-    .eq('destination_country', destination)
+    .eq('destination_country', resolveDestination(destination))
     .eq('active', true)
     .order('created_at', { ascending: false })
 

@@ -30,9 +30,9 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (2/9) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (4/9) 
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
@@ -44,15 +44,15 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
 Route (app)                              Size     First Load JS
 ┌ ○ /                                    2.15 kB         163 kB
 ├ ○ /_not-found                          875 B          88.1 kB
-├ ○ /agents                              1.51 kB         155 kB
-├ ○ /auth/login                          1.94 kB         156 kB
-├ ○ /customers                           1.53 kB         155 kB
-├ ○ /orders                              2.24 kB         163 kB
-├ ƒ /orders/[id]                         2.7 kB          156 kB
-├ ƒ /print/cn22/[id]                     2.22 kB         156 kB
-├ ƒ /print/gst/[id]                      2.45 kB         156 kB
-├ ƒ /print/sticker/[id]                  2.08 kB         156 kB
-└ ○ /rates                               2.17 kB         156 kB
+├ ○ /agents                              1.65 kB         155 kB
+├ ○ /auth/login                          2.12 kB         156 kB
+├ ○ /customers                           1.67 kB         155 kB
+├ ○ /orders                              2.37 kB         163 kB
+├ ƒ /orders/[id]                         2.83 kB         156 kB
+├ ƒ /print/cn22/[id]                     2.35 kB         156 kB
+├ ƒ /print/gst/[id]                      2.58 kB         156 kB
+├ ƒ /print/sticker/[id]                  2.22 kB         156 kB
+└ ○ /rates                               2.31 kB         156 kB
 + First Load JS shared by all            87.2 kB
   ├ chunks/796-5276b3a396251a6b.js       31.6 kB
   ├ chunks/b4553ad9-ea87728bcb5537cf.js  53.7 kB

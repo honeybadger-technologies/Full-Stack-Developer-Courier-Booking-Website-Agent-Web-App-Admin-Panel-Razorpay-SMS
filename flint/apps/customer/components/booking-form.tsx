@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { orderApi } from '@cbp/api-client'
+import { supabase } from '@cbp/supabase'
+import { createOrderRequest } from '../lib/orders'
 
 export function BookingForm() {
   const router = useRouter()
@@ -49,8 +50,11 @@ export function BookingForm() {
 
     try {
       // Get price first
-      const priceResult = await fetch(`/api/prices?destination=${formData.destinationCountry}&weight=${formData.weight}`)
+      const priceResult = await fetch(
+        `/api/prices?destination=${encodeURIComponent(formData.destinationCountry)}&weight=${formData.weight}`,
+      )
       const priceData = await priceResult.json()
+      if (!priceResult.ok) throw new Error(priceData.error || 'failed to calculate price')
 
       const orderData = {
         receiverName: formData.receiverName,
@@ -63,7 +67,11 @@ export function BookingForm() {
         totalAmount: priceData.total,
       }
 
-      const order = await orderApi.createOrder(orderData)
+      const { data: { session } } = await supabase.auth.getSession()
+      const orderRes = await fetch('/api/orders', createOrderRequest(session?.access_token, orderData))
+      const order = await orderRes.json()
+      if (!orderRes.ok) throw new Error(order?.error || 'failed to create order')
+
       setSuccess(true)
 
       // Redirect to checkout with the order ID

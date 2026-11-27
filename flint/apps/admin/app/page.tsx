@@ -68,26 +68,6 @@ export default function AdminDashboard() {
         <p className="text-gray-600">Overview of your courier platform</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600">Total Orders</p>
-          <p className="text-2xl font-bold text-primary">{stats?.totalOrders || 0}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600">Customers</p>
-          <p className="text-2xl font-bold text-primary">{stats?.totalCustomers || 0}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600">Agents</p>
-          <p className="text-2xl font-bold text-primary">{stats?.totalAgents || 0}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600">Pending Orders</p>
-          <p className="text-2xl font-bold text-warning">{stats?.pendingOrders || 0}</p>
-        </div>
-      </div>
-
       {/* Recent Orders */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">

@@ -6,7 +6,7 @@ import { supabase } from '@cbp/supabase'
 import Link from 'next/link'
 import { PriceCalculator } from './price-calculator'
 import { BookingForm } from './booking-form'
-import { OrderHistory } from './order-history'
+import OrderHistory from './order-history'
 
 export function CustomerHomeWrapper() {
   const [user, setUser] = useState<any>(null)

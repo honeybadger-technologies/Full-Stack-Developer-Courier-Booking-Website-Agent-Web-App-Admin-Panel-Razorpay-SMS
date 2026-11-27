@@ -79,6 +79,37 @@ describe('GET /api/prices', () => {
       currency: 'INR',
     })
   })
+
+  it('resolves a short destination code to a configured rate', async () => {
+    fromMock.mockReturnValue(
+      mockDbQuery({
+        data: [
+          {
+            destination_country: 'United Kingdom',
+            weight_range_min: 1,
+            weight_range_max: 10,
+            base_rate: 150,
+            margin_percent: 20,
+            active: true,
+            created_at: '2026-01-01T00:00:00Z',
+          },
+        ],
+        error: null,
+      })
+    )
+
+    const res = await getPrices(makeRequest('/api/prices?destination=UK&weight=2'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      destination: 'United Kingdom',
+      weight: 2,
+      base_rate: 150,
+      margin_percent: 20,
+      margin: 30,
+      total: 180,
+      currency: 'INR',
+    })
+  })
 })
 
 describe('GET /api/rates/price', () => {
@@ -121,5 +152,36 @@ describe('GET /api/rates/price', () => {
     const res = await getRatePrice(makeRequest('/api/rates/price?destination=United%20States&weight=-1'))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'weight must be a positive number' })
+  })
+
+  it('resolves a short destination code to a configured rate', async () => {
+    fromMock.mockReturnValue(
+      mockDbQuery({
+        data: [
+          {
+            destination_country: 'United Arab Emirates',
+            weight_range_min: 1,
+            weight_range_max: 30,
+            base_rate: 250,
+            margin_percent: 15,
+            active: true,
+            created_at: '2026-01-03T00:00:00Z',
+          },
+        ],
+        error: null,
+      })
+    )
+
+    const res = await getRatePrice(makeRequest('/api/rates/price?destination=AE&weight=2'))
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      destination: 'United Arab Emirates',
+      weight: 2,
+      base_rate: 250,
+      margin_percent: 15,
+      margin: 37.5,
+      total: 287.5,
+      currency: 'INR',
+    })
   })
 })

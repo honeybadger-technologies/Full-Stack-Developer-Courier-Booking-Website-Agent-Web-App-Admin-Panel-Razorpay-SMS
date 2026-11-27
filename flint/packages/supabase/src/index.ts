@@ -159,3 +159,47 @@ export async function getUserRole(): Promise<'customer' | 'agent' | 'admin' | nu
 
   return profile?.role || null;
 }
+
+// Route access decision: for a given app + profile role, whether the user may
+// enter, and where they go after sign-in.
+export type DemoApp = 'customer' | 'agent' | 'admin';
+
+export interface RouteAccessInput {
+  app: DemoApp;
+  role: 'customer' | 'agent' | 'admin' | null;
+  session: { user: { id: string } } | null;
+}
+
+export interface RouteAccessResult {
+  allowed: boolean;
+  redirectTo: string | null;
+}
+
+export function resolveRouteAccess(input: RouteAccessInput): RouteAccessResult {
+  const { app, role, session } = input;
+
+  if (!session?.user) {
+    return { allowed: false, redirectTo: '/auth/login' };
+  }
+
+  if (role === 'customer') {
+    if (app === 'customer') {
+      return { allowed: true, redirectTo: '/customer/home' };
+    }
+  }
+
+  if (role === 'agent') {
+    if (app === 'agent') {
+      return { allowed: true, redirectTo: '/dashboard' };
+    }
+  }
+
+  if (role === 'admin') {
+    if (app === 'admin') {
+      return { allowed: true, redirectTo: '/' };
+    }
+  }
+
+  // Signed in, but not for this app (or without a profile role) -> no access here.
+  return { allowed: false, redirectTo: null };
+}

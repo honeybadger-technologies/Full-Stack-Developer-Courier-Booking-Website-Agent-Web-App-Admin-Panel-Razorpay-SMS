@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@cbp/supabase'
+import { supabase, resolveRouteAccess } from '@cbp/supabase'
 
 export default function AgentLoginPage() {
   const [email, setEmail] = useState('')
@@ -31,11 +31,18 @@ export default function AgentLoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profileData?.role === 'agent') {
-          router.push('/dashboard')
+        const access = resolveRouteAccess({
+          app: 'agent',
+          role: profileData?.role ?? null,
+          session: { user: data.user },
+        })
+
+        if (access.allowed) {
+          router.push(access.redirectTo || '/dashboard')
+        } else if (access.redirectTo) {
+          router.push(access.redirectTo)
         } else {
-          router.push('/auth/login')
-          setError('This account is not registered as an agent')
+          setError('This account has no access here')
         }
       }
     } catch (err: any) {

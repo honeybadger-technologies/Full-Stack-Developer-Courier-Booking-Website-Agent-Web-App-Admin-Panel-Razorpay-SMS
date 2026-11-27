@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { supabase } from '@cbp/supabase'
+import { supabase, resolveRouteAccess } from '@cbp/supabase'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -11,6 +11,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [user, setUser] = useState<any>(null)
+  const [noAccess, setNoAccess] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const isAuthPage = (pathname || '').startsWith('/auth/')
@@ -36,8 +37,18 @@ export default function AdminLayout({
         .eq('id', session.user.id)
         .single()
 
-      if (profile?.role !== 'admin') {
-        router.push('/auth/login')
+      const access = resolveRouteAccess({
+        app: 'admin',
+        role: profile?.role ?? null,
+        session: { user: session.user },
+      })
+
+      if (!access.allowed) {
+        if (access.redirectTo) {
+          router.push(access.redirectTo)
+        } else {
+          setNoAccess(true)
+        }
       }
     }
 
@@ -74,6 +85,25 @@ export default function AdminLayout({
   if (isAuthPage) {
     // Auth pages render without the session gate (login/logout flows).
     return <>{children}</>
+  }
+
+  if (noAccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="mb-4 text-lg">This account has no access here</p>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut()
+              router.push('/auth/login')
+            }}
+            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm font-medium"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { supabase } from '@cbp/supabase'
+import { supabase, resolveRouteAccess } from '@cbp/supabase'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -10,6 +10,7 @@ export default function AgentLayout({
 }) {
   const [user, setUser] = useState<any>(null)
   const [todayPickups, setTodayPickups] = useState(0)
+  const [noAccess, setNoAccess] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -29,13 +30,42 @@ export default function AgentLayout({
         .eq('id', session.user.id)
         .single()
 
-      if (profile?.role !== 'agent') {
-        router.push('/auth/login')
+      const access = resolveRouteAccess({
+        app: 'agent',
+        role: profile?.role ?? null,
+        session: { user: session.user },
+      })
+
+      if (!access.allowed) {
+        if (access.redirectTo) {
+          router.push(access.redirectTo)
+        } else {
+          setNoAccess(true)
+        }
       }
     }
 
     checkSession()
   }, [router])
+
+  if (noAccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="mb-4 text-lg">This account has no access here</p>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut()
+              router.push('/auth/login')
+            }}
+            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm font-medium"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>

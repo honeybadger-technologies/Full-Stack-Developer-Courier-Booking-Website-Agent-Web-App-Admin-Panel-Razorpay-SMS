@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@cbp/supabase'
+import { supabase, resolveRouteAccess } from '@cbp/supabase'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -31,12 +31,18 @@ export default function AdminLoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profileData?.role === 'admin') {
-          router.push('/')
-        } else if (profileData?.role === 'agent') {
-          router.push('/')
+        const access = resolveRouteAccess({
+          app: 'admin',
+          role: profileData?.role ?? null,
+          session: { user: data.user },
+        })
+
+        if (access.allowed) {
+          router.push(access.redirectTo || '/')
+        } else if (access.redirectTo) {
+          router.push(access.redirectTo)
         } else {
-          router.push('/customer/home')
+          setError('This account has no access here')
         }
       }
     } catch (err: any) {

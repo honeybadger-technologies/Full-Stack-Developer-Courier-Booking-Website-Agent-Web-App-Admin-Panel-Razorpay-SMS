@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@cbp/supabase'
+import { supabase, resolveRouteAccess } from '@cbp/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [noAccess, setNoAccess] = useState(false)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -32,14 +33,19 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profileData?.role === 'customer') {
-          router.push('/customer/home')
-        } else if (profileData?.role === 'agent') {
-          router.push('/dashboard')
-        } else if (profileData?.role === 'admin') {
-          router.push('/')
+        const access = resolveRouteAccess({
+          app: 'customer',
+          role: profileData?.role ?? null,
+          session: { user: data.user },
+        })
+
+        if (access.allowed) {
+          router.push(access.redirectTo || '/customer/home')
+        } else if (access.redirectTo) {
+          router.push(access.redirectTo)
         } else {
-          router.push('/customer/home')
+          setNoAccess(true)
+          setError('This account has no access here')
         }
       }
     } catch (err: any) {
@@ -104,6 +110,18 @@ export default function LoginPage() {
             <div className="text-red-600 text-sm text-center bg-red-50 p-2 rounded">
               {error}
             </div>
+          )}
+
+          {noAccess && (
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut()
+                router.push('/auth/login')
+              }}
+              className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
+            >
+              Sign Out
+            </button>
           )}
 
           <div>

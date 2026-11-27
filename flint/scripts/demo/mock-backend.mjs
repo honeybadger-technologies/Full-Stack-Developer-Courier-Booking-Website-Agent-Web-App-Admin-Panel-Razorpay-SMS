@@ -227,10 +227,12 @@ const rates = [
 
 const orders = new Map()
 const paymentsByOrder = new Map()
+const agentPickups = new Map()
 const notifications = []
 let orderSeq = 0
 let paymentSeq = 0
 let notificationSeq = 0
+let pickupSeq = 0
 
 // Seed orders so admin dashboards and agent flows have data to work with.
 orders.set('ord_demo_1', {
@@ -262,13 +264,107 @@ orders.set('ord_demo_2', {
   weight: 5,
   scheduled_pickup_date: '2026-02-05T14:00:00Z',
   status: 'pending',
-  razorpay_order_id: null,
-  razorpay_payment_id: null,
+  razorpay_order_id: 'rzp_order_demo_2',
+  razorpay_payment_id: 'pay_demo_2',
   total_amount: 1000,
   phone: '9999999999',
   notes: null,
   created_at: '2026-01-07T11:30:00Z',
   updated_at: '2026-01-07T11:30:00Z',
+})
+
+orders.set('ord_demo_3', {
+  id: 'ord_demo_3',
+  order_number: 'HBC-1003',
+  customer_id: CUSTOMER_ID,
+  receiver_name: 'Demo Receiver Three',
+  receiver_address: '78 Example Avenue',
+  destination_country: 'United Arab Emirates',
+  weight: 8,
+  scheduled_pickup_date: '2026-02-10T09:00:00Z',
+  status: 'picked_up',
+  razorpay_order_id: 'rzp_order_demo_3',
+  razorpay_payment_id: 'pay_demo_3',
+  total_amount: 2000,
+  phone: '9999999999',
+  notes: null,
+  created_at: '2026-01-09T08:00:00Z',
+  updated_at: '2026-02-12T10:00:00Z',
+})
+
+orders.set('ord_demo_4', {
+  id: 'ord_demo_4',
+  order_number: 'HBC-1004',
+  customer_id: CUSTOMER_ID,
+  receiver_name: 'Demo Receiver Four',
+  receiver_address: '56 Example Lane',
+  destination_country: 'Germany',
+  weight: 3,
+  scheduled_pickup_date: '2026-02-15T13:00:00Z',
+  status: 'shipped',
+  razorpay_order_id: 'rzp_order_demo_4',
+  razorpay_payment_id: 'pay_demo_4',
+  total_amount: 900,
+  phone: '9999999999',
+  notes: null,
+  created_at: '2026-01-11T07:30:00Z',
+  updated_at: '2026-02-18T15:00:00Z',
+})
+
+paymentsByOrder.set('ord_demo_1', {
+  id: 'pay_demo_1',
+  order_id: 'ord_demo_1',
+  razorpay_order_id: null,
+  razorpay_payment_id: null,
+  amount: 360,
+  status: 'pending',
+  payment_method: 'upi',
+  created_at: '2026-01-05T09:00:00Z',
+})
+
+paymentsByOrder.set('ord_demo_2', {
+  id: 'pay_demo_2',
+  order_id: 'ord_demo_2',
+  razorpay_order_id: 'rzp_order_demo_2',
+  razorpay_payment_id: 'pay_demo_2',
+  amount: 1000,
+  status: 'completed',
+  payment_method: 'upi',
+  created_at: '2026-01-07T11:30:00Z',
+})
+
+paymentsByOrder.set('ord_demo_3', {
+  id: 'pay_demo_3',
+  order_id: 'ord_demo_3',
+  razorpay_order_id: 'rzp_order_demo_3',
+  razorpay_payment_id: 'pay_demo_3',
+  amount: 2000,
+  status: 'completed',
+  payment_method: 'upi',
+  created_at: '2026-02-12T10:00:00Z',
+})
+
+paymentsByOrder.set('ord_demo_4', {
+  id: 'pay_demo_4',
+  order_id: 'ord_demo_4',
+  razorpay_order_id: 'rzp_order_demo_4',
+  razorpay_payment_id: 'pay_demo_4',
+  amount: 900,
+  status: 'completed',
+  payment_method: 'upi',
+  created_at: '2026-02-18T15:00:00Z',
+})
+
+agentPickups.set('apt_demo_1', {
+  id: 'apt_demo_1',
+  order_id: 'ord_demo_2',
+  agent_id: AGENT_ID,
+  pickup_location: 'Warehouse Demo Hub',
+  actual_weight: 5,
+  photo_url: null,
+  status: 'scheduled',
+  scanned_qr: null,
+  created_at: '2026-02-06T09:00:00Z',
 })
 
 function insertOrder(body) {
@@ -400,6 +496,12 @@ const server = createServer(async (req, res) => {
     if (pathname === '/rest/v1/orders') {
       if (method === 'GET') {
         const rows = applyFilters([...orders.values()], parseFilters(url.searchParams))
+        const selectParam = url.searchParams.get('select') || ''
+        const prefer = String(req.headers.prefer || '')
+        const wantsCount = selectParam.includes('count') || prefer.includes('count=exact')
+        if (wantsCount) {
+          return sendResult(res, 200, [{ count: rows.length }], single)
+        }
         return sendResult(res, 200, sortByCreatedAtDesc(rows), single)
       }
       if (method === 'POST') {
@@ -504,6 +606,31 @@ const server = createServer(async (req, res) => {
         parseFilters(url.searchParams),
       )
       return sendResult(res, 200, single ? (rows[0] ?? null) : rows, single)
+    }
+
+    // --- Supabase REST: agent pickups ---
+    if (pathname === '/rest/v1/agent_pickups') {
+      if (method === 'GET') {
+        const rows = applyFilters([...agentPickups.values()], parseFilters(url.searchParams))
+        return sendResult(res, 200, rows, single)
+      }
+      if (method === 'POST') {
+        const body = await readBody(req)
+        const pickup = {
+          id: `apt_${++pickupSeq}`,
+          order_id: typeof body.order_id === 'string' ? body.order_id : '',
+          agent_id: typeof body.agent_id === 'string' ? body.agent_id : '',
+          pickup_location: typeof body.pickup_location === 'string' ? body.pickup_location : '',
+          actual_weight: typeof body.actual_weight === 'number' ? body.actual_weight : null,
+          photo_url: null,
+          status: typeof body.status === 'string' ? body.status : 'scheduled',
+          scanned_qr: null,
+          created_at: new Date().toISOString(),
+        }
+        agentPickups.set(pickup.id, pickup)
+        return sendJson(res, 201, pickup)
+      }
+      return sendError(res, 405, { message: 'Method not allowed' })
     }
 
     // --- Razorpay ---

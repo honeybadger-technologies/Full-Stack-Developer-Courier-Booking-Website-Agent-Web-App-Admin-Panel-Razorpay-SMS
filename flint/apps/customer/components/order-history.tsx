@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@cbp/supabase'
 
-export function OrderHistory() {
+export default function OrderHistory() {
+  const router = useRouter()
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -105,6 +107,14 @@ export function OrderHistory() {
                 Track Order
               </a>
             </div>
+            {order.status === 'pending' && !order.razorpay_payment_id && (
+              <button
+                onClick={() => router.push(`/checkout?orderId=${order.id}`)}
+                className="mt-3 w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark text-sm"
+              >
+                Pay Now
+              </button>
+            )}
           </div>
         ))}
       </div>

@@ -22,15 +22,15 @@ info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/d
    Collecting page data ...
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (0/10) ...
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (2/10) 
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (4/10) 
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
 ⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
-⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
    Generating static pages (7/10) 
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
+⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715
  ✓ Generating static pages (10/10)
    Finalizing page optimization ...
    Collecting build traces ...
@@ -39,11 +39,11 @@ Route (app)                              Size     First Load JS
 ┌ ○ /_not-found                          875 B          88.1 kB
 ├ ƒ /api/razorpay/create-order           0 B                0 B
 ├ ƒ /api/sms/send                        0 B                0 B
-├ ○ /auth/login                          1.89 kB         156 kB
-├ ○ /balance                             2.21 kB         156 kB
-├ ○ /dashboard                           8.99 kB         163 kB
+├ ○ /auth/login                          2.05 kB         156 kB
+├ ○ /balance                             2.33 kB         156 kB
+├ ○ /dashboard                           9.11 kB         163 kB
 ├ ○ /scan                                109 kB          263 kB
-└ ○ /weight                              2.31 kB         156 kB
+└ ○ /weight                              2.42 kB         156 kB
 + First Load JS shared by all            87.2 kB
   ├ chunks/796-3bf7de7ec8435cfa.js       31.6 kB
   ├ chunks/b4553ad9-492be89e1be16bb2.js  53.7 kB

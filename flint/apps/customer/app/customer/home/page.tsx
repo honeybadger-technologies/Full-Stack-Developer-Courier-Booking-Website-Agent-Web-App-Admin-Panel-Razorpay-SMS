@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { PriceCalculator } from '../../../components/price-calculator'
 import { BookingForm } from '../../../components/booking-form'
-import { OrderHistory } from '../../../components/order-history'
+import OrderHistory from '../../../components/order-history'
 
 export default function CustomerHome() {
   return (
