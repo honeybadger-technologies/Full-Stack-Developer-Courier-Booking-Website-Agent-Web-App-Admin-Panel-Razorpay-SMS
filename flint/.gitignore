@@ -55,3 +55,6 @@ temp
 
 # Misc
 .turborepo
+
+# Turbo
+.turbo
