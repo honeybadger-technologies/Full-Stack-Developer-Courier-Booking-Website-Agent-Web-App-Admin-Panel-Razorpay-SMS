@@ -5,6 +5,8 @@
  * the full customer flow can be exercised locally without live credentials:
  *
  *   - Supabase Auth:        GET  /auth/v1/user
+ *                           POST /auth/v1/token?grant_type=password
+ *                           POST /auth/v1/logout
  *   - Supabase REST:        GET  /rest/v1/rates
  *                           POST /rest/v1/orders
  *                           GET  /rest/v1/orders
@@ -73,9 +75,19 @@ const usersByToken = {
 
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_SECRET || 'rzp_demo_secret'
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || 'rzp_webhook_demo_secret'
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'courier-demo'
 
 function signPayment(razorpayOrderId, razorpayPaymentId) {
   return createHmac('sha256', RAZORPAY_KEY_SECRET).update(`${razorpayOrderId}|${razorpayPaymentId}`).digest('hex')
+}
+
+function findTokenByEmail(email) {
+  for (const token of Object.keys(usersByToken)) {
+    if (usersByToken[token]?.email === email) {
+      return token
+    }
+  }
+  return null
 }
 
 function signWebhookPayload(rawBody) {
@@ -101,7 +113,7 @@ function getAuthUser(req) {
       token_type: 'bearer',
       expires_in: 3600,
       expires_at: Math.floor(Date.now() / 1000) + 3600,
-      refresh_token: '',
+      refresh_token: 'demo-refresh-token',
       user,
     },
   }
@@ -220,6 +232,45 @@ let orderSeq = 0
 let paymentSeq = 0
 let notificationSeq = 0
 
+// Seed orders so admin dashboards and agent flows have data to work with.
+orders.set('ord_demo_1', {
+  id: 'ord_demo_1',
+  order_number: 'HBC-1001',
+  customer_id: CUSTOMER_ID,
+  receiver_name: 'Demo Receiver',
+  receiver_address: '12 Example Street',
+  destination_country: 'United Kingdom',
+  weight: 2,
+  scheduled_pickup_date: '2026-02-01T10:00:00Z',
+  status: 'pending',
+  razorpay_order_id: null,
+  razorpay_payment_id: null,
+  total_amount: 360,
+  phone: '9999999999',
+  notes: null,
+  created_at: '2026-01-05T09:00:00Z',
+  updated_at: '2026-01-05T09:00:00Z',
+})
+
+orders.set('ord_demo_2', {
+  id: 'ord_demo_2',
+  order_number: 'HBC-1002',
+  customer_id: CUSTOMER_ID,
+  receiver_name: 'Demo Receiver Two',
+  receiver_address: '45 Example Road',
+  destination_country: 'United States',
+  weight: 5,
+  scheduled_pickup_date: '2026-02-05T14:00:00Z',
+  status: 'pending',
+  razorpay_order_id: null,
+  razorpay_payment_id: null,
+  total_amount: 1000,
+  phone: '9999999999',
+  notes: null,
+  created_at: '2026-01-07T11:30:00Z',
+  updated_at: '2026-01-07T11:30:00Z',
+})
+
 function insertOrder(body) {
   orderSeq += 1
   const id = `ord_${orderSeq}`
@@ -282,6 +333,41 @@ const server = createServer(async (req, res) => {
     if (pathname === '/auth/v1/user') {
       const result = getAuthUser(req)
       return sendJson(res, result.status, result.body)
+    }
+
+    // --- Supabase Auth: password grant token exchange ---
+    if (pathname === '/auth/v1/token' && method === 'POST') {
+      const body = await readBody(req)
+      const grantType =
+        url.searchParams.get('grant_type') || (typeof body?.grant_type === 'string' ? body.grant_type : '')
+      if (grantType !== 'password') {
+        return sendJson(res, 400, { error: 'unsupported_grant_type', error_description: 'Unsupported grant type', message: 'Unsupported grant type' })
+      }
+      const email = typeof body?.email === 'string' ? body.email : ''
+      const password = typeof body?.password === 'string' ? body.password : ''
+      const token = findTokenByEmail(email)
+      const user = token ? usersByToken[token] : null
+      if (!user || password !== DEMO_PASSWORD) {
+        return sendJson(res, 400, { error: 'invalid_grant', error_description: 'Invalid login credentials', message: 'Invalid login credentials' })
+      }
+      const session = {
+        access_token: token,
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        refresh_token: 'demo-refresh-token',
+        user,
+      }
+      return sendJson(res, 200, session)
+    }
+
+    if (pathname === '/auth/v1/logout' && method === 'POST') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Methods': '*',
+      })
+      return res.end()
     }
 
     // --- Supabase REST: rates ---

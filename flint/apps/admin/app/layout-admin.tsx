@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { supabase } from '@cbp/supabase'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function AdminLayout({
@@ -12,10 +12,14 @@ export default function AdminLayout({
 }) {
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
+  const pathname = usePathname()
+  const isAuthPage = (pathname || '').startsWith('/auth/')
   const [activePage, setActivePage] = useState('')
   const [stats, setStats] = useState<any>(null)
 
   useEffect(() => {
+    if (isAuthPage) return
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user || null)
@@ -39,7 +43,7 @@ export default function AdminLayout({
 
     checkSession()
     fetchStats()
-  }, [router])
+  }, [isAuthPage, router])
 
   const fetchStats = async () => {
     try {
@@ -60,12 +64,17 @@ export default function AdminLayout({
   }
 
   const navLinks = [
-    { name: 'Dashboard', href: '/admin' },
-    { name: 'Orders', href: '/admin/orders' },
-    { name: 'Customers', href: '/admin/customers' },
-    { name: 'Agents', href: '/admin/agents' },
-    { name: 'Rates', href: '/admin/rates' },
+    { name: 'Dashboard', href: '/' },
+    { name: 'Orders', href: '/orders' },
+    { name: 'Customers', href: '/customers' },
+    { name: 'Agents', href: '/agents' },
+    { name: 'Rates', href: '/rates' },
   ]
+
+  if (isAuthPage) {
+    // Auth pages render without the session gate (login/logout flows).
+    return <>{children}</>
+  }
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -75,7 +84,7 @@ export default function AdminLayout({
     <div className="layout-container">
       <nav className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/admin" className="text-xl font-bold text-primary">
+          <Link href="/" className="text-xl font-bold text-primary">
             Admin Panel
           </Link>
           <div className="flex items-center space-x-4">

@@ -32,9 +32,9 @@ export default function AdminLoginPage() {
           .single()
 
         if (profileData?.role === 'admin') {
-          router.push('/admin')
+          router.push('/')
         } else if (profileData?.role === 'agent') {
-          router.push('/agent/dashboard')
+          router.push('/')
         } else {
           router.push('/customer/home')
         }

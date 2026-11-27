@@ -63,7 +63,7 @@ export function OrderHistory() {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
         <p className="text-gray-500 text-center">No orders yet. Start by booking a parcel!</p>
-        <a href="/book" className="block mt-4 text-center text-primary hover:underline">
+        <a href="/customer/home" className="block mt-4 text-center text-primary hover:underline">
           Book Now
         </a>
       </div>

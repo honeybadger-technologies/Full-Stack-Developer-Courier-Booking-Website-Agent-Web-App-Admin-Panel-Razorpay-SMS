@@ -35,9 +35,9 @@ export default function LoginPage() {
         if (profileData?.role === 'customer') {
           router.push('/customer/home')
         } else if (profileData?.role === 'agent') {
-          router.push('/agent/dashboard')
+          router.push('/dashboard')
         } else if (profileData?.role === 'admin') {
-          router.push('/admin')
+          router.push('/')
         } else {
           router.push('/customer/home')
         }

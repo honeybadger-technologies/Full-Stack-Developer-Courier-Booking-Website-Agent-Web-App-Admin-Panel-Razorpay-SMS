@@ -218,13 +218,13 @@ export default function OrderTrackingPage() {
             Print Sticker
           </button>
           <button
-            onClick={() => router.push(`/admin/documents/cn22/${orderId}`)}
+            onClick={() => router.push(`/print/cn22/${orderId}`)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
             Print CN22/CN23
           </button>
           <button
-            onClick={() => router.push(`/admin/documents/gst/${orderId}`)}
+            onClick={() => router.push(`/print/gst/${orderId}`)}
             className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
           >
             Print GST Invoice

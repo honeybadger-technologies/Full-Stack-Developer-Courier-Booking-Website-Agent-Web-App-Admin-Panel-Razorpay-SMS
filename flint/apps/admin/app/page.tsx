@@ -133,7 +133,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link href={`/admin/orders/${order.id}`} className="text-primary hover:text-primary-dark">
+                      <Link href={`/orders/${order.id}`} className="text-primary hover:text-primary-dark">
                         View
                       </Link>
                     </td>

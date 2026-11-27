@@ -129,7 +129,7 @@ export default function OrdersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <Link href={`/admin/orders/${order.id}`} className="text-primary hover:text-primary-dark">
+                    <Link href={`/orders/${order.id}`} className="text-primary hover:text-primary-dark">
                       View
                     </Link>
                     {order.status === 'pending' && (

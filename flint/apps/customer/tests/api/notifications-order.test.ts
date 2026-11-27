@@ -131,5 +131,6 @@ describe('POST /api/notifications/order', () => {
     expect(emailBody.subject).toBe('Order confirmed')
     expect(typeof emailBody.text).toBe('string')
     expect(emailBody.text).toContain('ord_1')
+    expect(emailBody.to).toBe('demo@courier.com')
   })
 })
